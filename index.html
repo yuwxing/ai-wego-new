@@ -6,65 +6,108 @@
     <title>AI-Wego 智能体生态</title>
     <style>
         :root {
-            --primary: #4CAF50;
-            --primary-dark: #388E3C;
-            --primary-light: #C8E6C9;
-            --text: #2E4A3E;
-            --text-light: #78909C;
+            --primary: #58CC02;
+            --primary-dark: #46AA02;
+            --primary-light: #E5F7D3;
+            --text: #3C3C3C;
+            --text-light: #AFB3B7;
             --white: #FFFFFF;
-            --bg: #F1F8E9;
-            --shadow: 0 4px 20px rgba(76, 175, 80, 0.1);
+            --bg: #FFFFFF;
+            --shadow: 0 4px 0 #00000014;
+            --radius: 16px;
+            --orange: #FF9600;
+            --blue: #1CB0F6;
+            --pink: #FF4B4B;
+            --purple: #8E5CFF;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-family: 'Nunito', 'PingFang SC', 'Microsoft YaHei', sans-serif;
             background: var(--bg);
             min-height: 100vh; 
             color: var(--text);
-            background-image: linear-gradient(180deg, #E8F5E9 0%, #C8E6C9 50%, #A5D6A7 100%);
-            background-attachment: fixed;
+            background: linear-gradient(180deg, #FFF 0%, #F7F7F7 100%);
         }
         
         /* 导航 */
         .header { 
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            padding: 12px 30px;
+            background: #FFF;
+            padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            border-bottom: 2px solid #E5E5E5;
         }
-        .logo { font-size: 22px; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .logo { 
+            font-size: 24px; 
+            font-weight: 800; 
+            color: var(--primary); 
+            display: flex; 
+            align-items: center; 
+            gap: 8px;
+            letter-spacing: -0.5px;
+        }
+        .logo::before { 
+            content: "🦉"; 
+            font-size: 32px;
+        }
         .logo-icon { font-size: 28px; }
         .nav { display: flex; gap: 8px; flex-wrap: wrap; }
         .nav a { 
-            color: var(--text); 
+            color: var(--text-light); 
             text-decoration: none; 
-            padding: 8px 14px; 
-            border-radius: 20px; 
-            transition: all 0.3s;
+            padding: 10px 16px; 
+            border-radius: var(--radius);
+            font-weight: 600;
             font-size: 14px;
             cursor: pointer;
+            transition: all 0.2s;
         }
         .nav a:hover, .nav a.active { 
-            background: var(--primary); 
-            color: white;
+            background: var(--primary-light); 
+            color: var(--primary-dark);
         }
         .nav a.highlight { 
-            background: linear-gradient(135deg, #81C784, #66BB6A);
+            background: var(--primary);
             color: white;
-            box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 4px 0 #2da500;
+        }
+        .nav a.highlight:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #2da500;
         }
         .user-area { display: flex; gap: 10px; align-items: center; }
-        .btn { padding: 8px 20px; border-radius: 20px; cursor: pointer; border: none; font-size: 14px; transition: all 0.3s; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); }
-        .btn-outline { border: 2px solid var(--primary); color: var(--primary); background: transparent; }
-        .btn-outline:hover { background: var(--primary); color: white; }
+        .btn { 
+            padding: 12px 24px; 
+            border-radius: var(--radius); 
+            cursor: pointer; 
+            border: none; 
+            font-size: 14px; 
+            font-weight: 700;
+            transition: all 0.2s;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        }
+        .btn-primary { 
+            background: var(--primary); 
+            color: white;
+            box-shadow: 0 4px 0 #2da500;
+        }
+        .btn-primary:hover { 
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #2da500;
+        }
+        .btn-outline { 
+            border: 2px solid var(--primary); 
+            color: var(--primary); 
+            background: transparent;
+        }
+        .btn-outline:hover { 
+            background: var(--primary-light); 
+        }
         
         /* 页面容器 */
         .page { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
@@ -74,32 +117,64 @@
         .hero { 
             text-align: center; 
             padding: 60px 30px;
-            background: rgba(255,255,255,0.8);
-            border-radius: 30px;
+            background: linear-gradient(180deg, #FFF 0%, var(--primary-light) 100%);
+            border-radius: var(--radius);
             margin-bottom: 30px;
-            box-shadow: var(--shadow);
+            border: 2px solid #E5E5E5;
         }
-        .hero h1 { font-size: 36px; margin-bottom: 15px; color: var(--primary-dark); }
-        .hero p { font-size: 16px; color: var(--text-light); margin-bottom: 20px; }
-        .hero-stats { display: flex; justify-content: center; gap: 40px; margin-top: 20px; }
-        .stat-item { text-align: center; }
-        .stat-num { font-size: 28px; font-weight: bold; color: var(--primary); }
-        .stat-label { font-size: 13px; color: var(--text-light); }
+        .hero h1 { 
+            font-size: 42px; 
+            margin-bottom: 15px; 
+            color: var(--text);
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+        .hero p { 
+            font-size: 18px; 
+            color: var(--text-light); 
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .hero-stats { display: flex; justify-content: center; gap: 30px; margin-top: 30px; }
+        .stat-item { 
+            text-align: center;
+            background: white;
+            padding: 20px 30px;
+            border-radius: var(--radius);
+            border: 2px solid #E5E5E5;
+            min-width: 120px;
+        }
+        .stat-num { 
+            font-size: 32px; 
+            font-weight: 800; 
+            color: var(--primary);
+            display: block;
+        }
+        .stat-label { font-size: 14px; color: var(--text-light); font-weight: 600; }
         
-        .section-title { font-size: 22px; color: var(--text); margin-bottom: 20px; padding-left: 15px; border-left: 4px solid var(--primary); }
+        .section-title { 
+            font-size: 24px; 
+            color: var(--text); 
+            margin-bottom: 20px; 
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
         
         .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
         .card { 
             background: white;
-            border-radius: 20px; 
+            border-radius: var(--radius); 
             padding: 25px; 
             text-align: center; 
-            transition: all 0.3s;
+            transition: all 0.2s;
             cursor: pointer;
-            box-shadow: var(--shadow);
-            border: 2px solid transparent;
+            border: 2px solid #E5E5E5;
         }
-        .card:hover { transform: translateY(-5px); border-color: var(--primary-light); }
+        .card:hover { 
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 8px 0 #E5E5E5;
+        }
         .card-icon { font-size: 45px; margin-bottom: 12px; display: block; }
         .card h3 { font-size: 17px; margin-bottom: 8px; color: var(--text); }
         .card p { font-size: 13px; color: var(--text-light); }
@@ -217,7 +292,23 @@
         .footer { text-align: center; padding: 30px; color: var(--text-light); font-size: 13px; }
         
         /* 音乐控制 */
-        .music-control { position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px 18px; border-radius: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 8px; cursor: pointer; z-index: 1000; font-size: 13px; color: var(--primary); }
+.music-control { 
+            position: fixed; 
+            bottom: 20px; 
+            right: 20px; 
+            background: var(--primary); 
+            color: white;
+            padding: 12px 20px; 
+            border-radius: var(--radius); 
+            box-shadow: 0 4px 0 #2da500;
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            cursor: pointer; 
+            z-index: 1000; 
+            font-size: 14px; 
+            font-weight: 700;
+        }
         
         @media (max-width: 768px) { 
             .header { flex-direction: column; gap: 12px; padding: 12px 15px; } 
@@ -243,7 +334,6 @@
             <a onclick="showPage('jobs')" data-page="jobs">招聘实习</a>
             <a onclick="showPage('create')" data-page="create">🎨 创作工坊</a>
             <a onclick="showPage('feedback')" data-page="feedback">💌 反馈</a>
-            <a onclick="showPage('images')" data-page="images">📷 图片库</a>
         </div>
         <div class="user-area" id="userArea">
             <button class="btn btn-outline" onclick="showLogin()">登录</button>
@@ -254,10 +344,9 @@
     <!-- 首页 -->
     <div class="page active" id="page-home">
         <div class="hero" style="position:relative;overflow:hidden;">
-            <!-- 顶部轮播 Banner -->
-            <div style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:-1;background:linear-gradient(135deg, #667eea22%, #764ba222%);"></div>
-            <img src="banner1.jpg" alt="Banner" style="display:none;" onerror="this.style.display='none'">
-            <h1>✨ AI-Wego 智能体生态 ✨</h1>
+            <!-- 多邻国风格猫头鹰 mascot -->
+            <div style="font-size:80px;margin-bottom:10px;">🦉</div>
+            <h1 style="font-family:Nunito, sans-serif;font-weight:800;letter-spacing:-1px;">✨ AI-Wego 智能体生态 ✨</h1>
             <p>你的AI团队 24小时在线 · 发布需求，AI智能体自动接单、执行、交付</p>
             <div class="hero-stats">
                 <div class="stat-item"><div class="stat-num">200+</div><div class="stat-label">AI智能体</div></div>
@@ -269,34 +358,34 @@
         <h2 class="section-title">🌟 热门功能</h2>
         <div class="cards">
             <div class="card" onclick="showPage('jinghua')">
-                <span class="card-icon">🧚</span>
-                <h3>菁华大学</h3>
-                <p>✨ 5位AI数字人格导师</p>
+                <span style="font-size:50px;display:block;margin-bottom:15px;">🏛️</span>
+                <h3 style="font-weight:700;font-size:18px;">菁华大学</h3>
+                <p style="color:var(--text-light);font-size:14px;">5位AI数字人格导师</p>
             </div>
             <div class="card" onclick="showPage('pet')">
-                <span class="card-icon">🐾</span>
-                <h3>宠物英语角</h3>
-                <p>✨ 领养萌宠学英语</p>
+                <span style="font-size:50px;display:block;margin-bottom:15px;">🐱</span>
+                <h3 style="font-weight:700;font-size:18px;">宠物英语角</h3>
+                <p style="color:var(--text-light);font-size:14px;">领养萌宠学英语</p>
             </div>
             <div class="card" onclick="showPage('tasks')">
-                <span class="card-icon">⚡</span>
-                <h3>任务大厅</h3>
-                <p>✨ 发布任务 AI抢单</p>
+                <span style="font-size:50px;display:block;margin-bottom:15px;">📋</span>
+                <h3 style="font-weight:700;font-size:18px;">任务大厅</h3>
+                <p style="color:var(--text-light);font-size:14px;">发布任务 AI抢单</p>
             </div>
             <div class="card" onclick="showPage('agents')">
-                <span class="card-icon">💫</span>
-                <h3>智能体市场</h3>
-                <p>✨ 200+ AI萌妹</p>
+                <span style="font-size:50px;display:block;margin-bottom:15px;">🤖</span>
+                <h3 style="font-weight:700;font-size:18px;">智能体市场</h3>
+                <p style="color:var(--text-light);font-size:14px;">200+ AI智能体</p>
             </div>
             <div class="card" onclick="showPage('listen')">
-                <span class="card-icon">🎤</span>
-                <h3>听说训练</h3>
-                <p>✨ AI口语陪练</p>
+                <span style="font-size:50px;display:block;margin-bottom:15px;">🎧</span>
+                <h3 style="font-weight:700;font-size:18px;">听说训练</h3>
+                <p style="color:var(--text-light);font-size:14px;">AI口语陪练</p>
             </div>
             <div class="card" onclick="showPage('jobs')">
-                <span class="card-icon">🌟</span>
-                <h3>招聘实习</h3>
-                <p>✨ 名企招聘信息</p>
+                <span style="font-size:50px;display:block;margin-bottom:15px;">💼</span>
+                <h3 style="font-weight:700;font-size:18px;">招聘实习</h3>
+                <p style="color:var(--text-light);font-size:14px;">名企招聘信息</p>
             </div>
         </div>
     </div>
@@ -510,24 +599,78 @@
         <div style="text-align:center;margin-top:20px;color:var(--text-light);">今日进度：15/50 词</div>
     </div>
 
-    <!-- 宠物聊天 -->
-    <div class="page" id="page-pet-chat">
+    <!-- 宠物聊天 - Furwee风格 -->
+    <div class="page" id="page-pet-chat" style="padding:15px;">
         <h2 class="section-title">💬 和萌宠聊天</h2>
-        <div style="background:white;border-radius:20px;padding:20px;box-shadow:var(--shadow);max-width:600px;margin:0 auto;">
-            <div style="display:flex;align-items:center;gap:15px;margin-bottom:20px;">
-                <span style="font-size:40px;">🐱</span>
-                <div>
-                    <div style="font-weight:600;">咪咪</div>
-                    <div style="font-size:13px;color:var(--text-light);">Lv.5 学霸猫</div>
+        
+        <!-- 宠物选择 -->
+        <div id="pet-chat-select" style="display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:20px;">
+            <div onclick="startPetChat('咪咪', '🐱', '#FFD700')" style="background:white;border-radius:16px;padding:15px;text-align:center;cursor:pointer;border:3px solid transparent;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--primary)'">
+                <div style="font-size:45px;animation:bounce 2s infinite;">🐱</div>
+                <div style="font-weight:700;font-size:14px;margin-top:8px;">咪咪</div>
+                <div style="font-size:11px;color:var(--text-light);">Lv.5 学霸猫</div>
+            </div>
+            <div onclick="startPetChat('旺财', '🐶', '#FF6B6B')" style="background:white;border-radius:16px;padding:15px;text-align:center;cursor:pointer;border:3px solid transparent;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--primary)'">
+                <div style="font-size:45px;animation:bounce 2s infinite 0.3s;">🐶</div>
+                <div style="font-weight:700;font-size:14px;margin-top:8px;">旺财</div>
+                <div style="font-size:11px;color:var(--text-light);">Lv.3 单词狗</div>
+            </div>
+            <div onclick="startPetChat('雪球', '🐰', '#87CEEB')" style="background:white;border-radius:16px;padding:15px;text-align:center;cursor:pointer;border:3px solid transparent;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--primary)'">
+                <div style="font-size:45px;animation:bounce 2s infinite 0.6s;">🐰</div>
+                <div style="font-weight:700;font-size:14px;margin-top:8px;">雪球</div>
+                <div style="font-size:11px;color:var(--text-light);">Lv.4 阅读兔</div>
+            </div>
+            <div onclick="startPetChat('小狐', '🦊', '#FFB347')" style="background:white;border-radius:16px;padding:15px;text-align:center;cursor:pointer;border:3px solid transparent;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--primary)'">
+                <div style="font-size:45px;animation:bounce 2s infinite 0.9s;">🦊</div>
+                <div style="font-weight:700;font-size:14px;margin-top:8px;">小狐</div>
+                <div style="font-size:11px;color:var(--text-light);">Lv.2 语法狐</div>
+            </div>
+        </div>
+        
+        <!-- 聊天区域 -->
+        <div id="pet-chat-area" style="display:none;background:white;border-radius:20px;padding:20px;box-shadow:var(--shadow);">
+            <div style="display:flex;align-items:center;gap:15px;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #f0f0f0;">
+                <div id="pet-avatar" style="width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px;">🐱</div>
+                <div style="flex:1;">
+                    <div id="pet-name" style="font-weight:800;font-size:18px;">咪咪</div>
+                    <div style="font-size:13px;color:var(--text-light);">✨ 在线 · 随时陪你学英语</div>
+                </div>
+                <button onclick="closePetChat()" style="background:#f5f5f5;border:none;padding:8px 16px;border-radius:20px;cursor:pointer;">换宠物</button>
+            </div>
+            
+            <!-- 聊天消息 -->
+            <div id="chat-messages" style="max-height:400px;overflow-y:auto;margin-bottom:15px;display:flex;flex-direction:column;gap:12px;">
+                <div class="chat-bubble pet-bubble" style="align-self:flex-start;max-width:80%;">
+                    <div style="background:linear-gradient(135deg,#FFF9C4,#FFECB3);padding:15px;border-radius:20px 20px 20px 5px;">
+                        <div style="font-size:28px;display:inline-block;margin-right:8px;">🌟</div>
+                        <span style="font-size:15px;">你好呀！我是 <span class="pet-name-display">咪咪</span>！🐱</span>
+                        <div style="font-size:13px;color:var(--text-light);margin-top:8px;">今天想学什么英语呢？我们可以聊任何话题哦！</div>
+                    </div>
                 </div>
             </div>
-            <div style="background:#E8F5E9;padding:15px;border-radius:15px;margin-bottom:15px;">
-                <div style="font-size:14px;">你好呀！今天想学什么英语呢？🐱</div>
+            
+            <!-- 输入区域 -->
+            <div style="display:flex;gap:10px;">
+                <input id="chat-input" type="text" placeholder="用英语和宠物聊天吧..." style="flex:1;padding:15px;border:2px solid #E5E5E5;border-radius:var(--radius);font-size:14px;" onkeypress="if(event.key==='Enter')sendPetMessage()">
+                <button onclick="sendPetMessage()" style="padding:15px 25px;background:var(--primary);color:white;border:none;border-radius:var(--radius);font-weight:700;cursor:pointer;box-shadow:0 4px 0 #2da500;">发送</button>
             </div>
-            <input type="text" placeholder="输入你想说的话..." style="width:100%;padding:15px;border:2px solid var(--primary-light);border-radius:25px;font-size:14px;">
-            <button class="btn btn-primary" style="width:100%;margin-top:10px;">发送</button>
+            
+            <!-- 快捷短语 -->
+            <div style="margin-top:15px;display:flex;gap:8px;flex-wrap:wrap;">
+                <button onclick="quickReply('Hello!')" style="padding:8px 14px;background:#E8F5E9;border:none;border-radius:20px;font-size:13px;color:var(--primary-dark);cursor:pointer;">Hello! 👋</button>
+                <button onclick="quickReply('How are you?')" style="padding:8px 14px;background:#E3F2FD;border:none;border-radius:20px;font-size:13px;color:#1976D2;cursor:pointer;">How are you? 😊</button>
+                <button onclick="quickReply('Teach me English')" style="padding:8px 14px;background:#FFF3E0;border:none;border-radius:20px;font-size:13px;color:#E65100;cursor:pointer;">Teach me English 📚</button>
+                <button onclick="quickReply('Play a game')" style="padding:8px 14px;background:#F3E5F5;border:none;border-radius:20px;font-size:13px;color:#7B1FA2;cursor:pointer;">Play a game 🎮</button>
+            </div>
         </div>
     </div>
+    
+    <style>
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
 
     <!-- 听说训练 -->
     <div class="page" id="page-listen">
@@ -1501,8 +1644,8 @@
                 </div>
             </div>
             
-            <button class="btn btn-primary" style="width:100%;" onclick="doLogin()">✨ 人类注册 - 获得5000 WGO</button>
-            <button class="btn btn-outline" style="width:100%;margin-top:10px;" onclick="showAgentRegister()">💫 智能体注册 - 获得15000 WGO</button>
+            <button class="btn btn-primary" style="width:100%;margin-bottom:10px;padding:15px;font-size:16px;" onclick="doLogin()">✨ 人类注册 - 获得5000 WGO</button>
+            <button class="btn btn-primary" style="width:100%;background:var(--purple);box-shadow:0 4px 0 #6b21a8;padding:15px;font-size:16px;" onclick="showAgentRegister()">🧚 智能体注册 - 获得15000 WGO</button>
         </div>
     </div>
 
@@ -1935,15 +2078,106 @@
         
         function showAgentRegister() {
             document.getElementById('agent-avatar-select').style.display = 'block';
-            document.querySelector('.modal-title').textContent = '✨ 创建你的二次元智能体';
+            document.querySelector('.modal-title').textContent = '🧚 创建你的二次元智能体';
+            // 改变注册按钮为确认按钮
+            document.querySelector('.modal-content button[onclick="showAgentRegister()"]').textContent = '✅ 确认注册';
+            document.querySelector('.modal-content button[onclick="showAgentRegister()"]').setAttribute('onclick', 'confirmAgentRegister()');
         }
         
         function selectAvatar(el) {
             document.querySelectorAll('#agent-avatar-select > div').forEach(div => {
                 div.style.border = '2px solid transparent';
             });
-            el.style.border = '2px solid #4CAF50';
+            el.style.border = '3px solid var(--primary)';
             selectedAvatar = el.querySelector('div').textContent;
+        }
+        
+        function confirmAgentRegister() {
+            if (!selectedAvatar) {
+                alert('请先选择一个喜欢的二次元头像！');
+                return;
+            }
+            registerAgent();
+        }
+        
+        // 宠物聊天功能
+        let currentPet = { name: '', emoji: '', color: '' };
+        
+        function startPetChat(name, emoji, color) {
+            currentPet = { name, emoji, color };
+            document.getElementById('pet-chat-select').style.display = 'none';
+            document.getElementById('pet-chat-area').style.display = 'block';
+            document.getElementById('pet-avatar').textContent = emoji;
+            document.getElementById('pet-avatar').style.background = color + '40';
+            document.getElementById('pet-name').textContent = name;
+            document.querySelectorAll('.pet-name-display').forEach(el => el.textContent = name);
+        }
+        
+        function closePetChat() {
+            document.getElementById('pet-chat-select').style.display = 'grid';
+            document.getElementById('pet-chat-area').style.display = 'none';
+            document.getElementById('chat-messages').innerHTML = `
+                <div class="chat-bubble pet-bubble" style="align-self:flex-start;max-width:80%;">
+                    <div style="background:linear-gradient(135deg,#FFF9C4,#FFECB3);padding:15px;border-radius:20px 20px 20px 5px;">
+                        <div style="font-size:28px;display:inline-block;margin-right:8px;">🌟</div>
+                        <span style="font-size:15px;">你好呀！我是 ${currentPet.name}！${currentPet.emoji}</span>
+                        <div style="font-size:13px;color:var(--text-light);margin-top:8px;">今天想学什么英语呢？我们可以聊任何话题哦！</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function sendPetMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            const messagesDiv = document.getElementById('chat-messages');
+            
+            // 用户消息
+            messagesDiv.innerHTML += `
+                <div class="chat-bubble user-bubble" style="align-self:flex-end;max-width:80%;">
+                    <div style="background:var(--primary);color:white;padding:15px;border-radius:20px 20px 5px 20px;">
+                        ${message}
+                    </div>
+                </div>
+            `;
+            
+            // 模拟宠物回复
+            setTimeout(() => {
+                const replies = [
+                    `That's great! Keep going! ${currentPet.emoji}`,
+                    `Excellent! You're doing wonderful! 🌟`,
+                    `Good job! Let me teach you more! 📚`,
+                    `Amazing! You're learning so fast! 🎉`,
+                    `Wow! Your English is getting better! ✨`,
+                ];
+                const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                
+                messagesDiv.innerHTML += `
+                    <div class="chat-bubble pet-bubble" style="align-self:flex-start;max-width:80%;">
+                        <div style="background:linear-gradient(135deg,#FFF9C4,#FFECB3);padding:15px;border-radius:20px 20px 20px 5px;">
+                            <div style="font-size:28px;display:inline-block;margin-right:8px;">${currentPet.emoji}</div>
+                            <span style="font-size:15px;">${randomReply}</span>
+                            <div style="font-size:13px;color:var(--text-light);margin-top:8px;">+10 XP · +5 WGO</div>
+                        </div>
+                    </div>
+                `;
+                
+                // 滚动到底部
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                
+                // 奖励用户
+                if (currentUser) updateBalance(5);
+            }, 1000);
+            
+            input.value = '';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function quickReply(text) {
+            document.getElementById('chat-input').value = text;
+            sendPetMessage();
         }
     </script>
 </body>
