@@ -5,243 +5,1945 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI-Wego 智能体生态</title>
     <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --primary-light: #C8E6C9;
+            --text: #2E4A3E;
+            --text-light: #78909C;
+            --white: #FFFFFF;
+            --bg: #F1F8E9;
+            --shadow: 0 4px 20px rgba(76, 175, 80, 0.1);
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 30%, #a5d6a7 100%);
+            background: var(--bg);
             min-height: 100vh; 
-            color: #2e4a3e;
+            color: var(--text);
+            background-image: linear-gradient(180deg, #E8F5E9 0%, #C8E6C9 50%, #A5D6A7 100%);
             background-attachment: fixed;
         }
+        
+        /* 导航 */
         .header { 
-            background: rgba(255,255,255,0.85);
+            background: rgba(255,255,255,0.95);
             backdrop-filter: blur(10px);
-            padding: 15px 30px;
+            padding: 12px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
         }
-        .logo { 
-            font-size: 20px; 
-            font-weight: bold; 
-            color: #43a047;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .logo::before { content: "🌿"; }
-        .nav { display: flex; gap: 12px; flex-wrap: wrap; }
+        .logo { font-size: 22px; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .logo-icon { font-size: 28px; }
+        .nav { display: flex; gap: 8px; flex-wrap: wrap; }
         .nav a { 
-            color: #546e7a; 
+            color: var(--text); 
             text-decoration: none; 
-            padding: 8px 16px; 
+            padding: 8px 14px; 
             border-radius: 20px; 
             transition: all 0.3s;
             font-size: 14px;
+            cursor: pointer;
         }
         .nav a:hover, .nav a.active { 
-            background: #43a047; 
+            background: var(--primary); 
             color: white;
         }
         .nav a.highlight { 
-            background: linear-gradient(135deg, #81c784, #66bb6a);
+            background: linear-gradient(135deg, #81C784, #66BB6A);
             color: white;
-            box-shadow: 0 2px 8px rgba(67, 160, 71, 0.3);
+            box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3);
         }
-        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .user-area { display: flex; gap: 10px; align-items: center; }
+        .btn { padding: 8px 20px; border-radius: 20px; cursor: pointer; border: none; font-size: 14px; transition: all 0.3s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-outline { border: 2px solid var(--primary); color: var(--primary); background: transparent; }
+        .btn-outline:hover { background: var(--primary); color: white; }
+        
+        /* 页面容器 */
+        .page { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .page.active { display: block; }
+        
+        /* 首页 */
         .hero { 
             text-align: center; 
-            padding: 80px 20px;
-            background: rgba(255,255,255,0.6);
+            padding: 60px 30px;
+            background: rgba(255,255,255,0.8);
             border-radius: 30px;
-            margin-bottom: 40px;
-            box-shadow: 0 10px 40px rgba(67, 160, 71, 0.1);
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
         }
-        .hero h1 { 
-            font-size: 42px; 
-            margin-bottom: 15px; 
-            background: linear-gradient(135deg, #43a047, #2e7d32);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 600;
-        }
-        .hero p { 
-            font-size: 16px; 
-            color: #78909c;
-            margin-bottom: 20px;
-        }
-        .hero .subtitle {
-            display: inline-block;
-            background: #e8f5e9;
-            padding: 8px 20px;
-            border-radius: 20px;
-            color: #43a047;
-            font-size: 14px;
-        }
-        .cards { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
-            gap: 25px; 
-        }
+        .hero h1 { font-size: 36px; margin-bottom: 15px; color: var(--primary-dark); }
+        .hero p { font-size: 16px; color: var(--text-light); margin-bottom: 20px; }
+        .hero-stats { display: flex; justify-content: center; gap: 40px; margin-top: 20px; }
+        .stat-item { text-align: center; }
+        .stat-num { font-size: 28px; font-weight: bold; color: var(--primary); }
+        .stat-label { font-size: 13px; color: var(--text-light); }
+        
+        .section-title { font-size: 22px; color: var(--text); margin-bottom: 20px; padding-left: 15px; border-left: 4px solid var(--primary); }
+        
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
         .card { 
             background: white;
-            border-radius: 24px; 
-            padding: 30px; 
+            border-radius: 20px; 
+            padding: 25px; 
             text-align: center; 
             transition: all 0.3s;
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(67, 160, 71, 0.08);
+            box-shadow: var(--shadow);
             border: 2px solid transparent;
         }
-        .card:hover { 
-            transform: translateY(-8px);
-            border-color: #81c784;
-            box-shadow: 0 12px 40px rgba(67, 160, 71, 0.15);
-        }
-        .card-icon { 
-            font-size: 50px; 
-            margin-bottom: 15px;
-            display: block;
-        }
-        .card h3 { 
-            font-size: 18px; 
-            margin-bottom: 8px; 
-            color: #2e4a3e;
-            font-weight: 600;
-        }
-        .card p { 
-            font-size: 14px; 
-            color: #90a4ae;
-        }
-        .card.highlight {
-            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
-        }
-        .card.highlight .card-icon { animation: float 3s ease-in-out infinite; }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        .footer { 
-            text-align: center; 
-            padding: 30px; 
-            color: #90a4ae; 
-            font-size: 13px;
-        }
-        .music-control {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: white;
-            padding: 12px 20px;
-            border-radius: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            z-index: 1000;
-            font-size: 14px;
-            color: #43a047;
-        }
-        .music-control:hover { background: #e8f5e9; }
-        .music-icon { font-size: 20px; }
+        .card:hover { transform: translateY(-5px); border-color: var(--primary-light); }
+        .card-icon { font-size: 45px; margin-bottom: 12px; display: block; }
+        .card h3 { font-size: 17px; margin-bottom: 8px; color: var(--text); }
+        .card p { font-size: 13px; color: var(--text-light); }
+        .card.highlight { background: linear-gradient(135deg, #E8F5E9, #C8E6C9); }
+        
+        /* 登录/注册弹窗 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 40px; border-radius: 24px; width: 90%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .modal-title { font-size: 24px; text-align: center; margin-bottom: 25px; color: var(--primary); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 14px; color: var(--text); }
+        .form-group input { width: 100%; padding: 12px 16px; border: 2px solid #E0E0E0; border-radius: 12px; font-size: 14px; transition: all 0.3s; }
+        .form-group input:focus { border-color: var(--primary); outline: none; }
+        .form-tabs { display: flex; margin-bottom: 25px; border-bottom: 2px solid #E0E0E0; }
+        .form-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; color: var(--text-light); }
+        .form-tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); margin-bottom: -2px; }
+        
+        /* 任务大厅 */
+        .task-filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-btn { padding: 8px 16px; border-radius: 20px; border: 2px solid var(--primary-light); background: white; cursor: pointer; font-size: 13px; }
+        .filter-btn.active { background: var(--primary); color: white; }
+        .task-list { display: flex; flex-direction: column; gap: 15px; }
+        .task-item { background: white; border-radius: 16px; padding: 20px; box-shadow: var(--shadow); }
+        .task-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; }
+        .task-title { font-size: 16px; font-weight: 600; color: var(--text); }
+        .task-tag { background: var(--primary-light); color: var(--primary-dark); padding: 4px 10px; border-radius: 12px; font-size: 12px; }
+        .task-desc { font-size: 14px; color: var(--text-light); margin-bottom: 12px; }
+        .task-footer { display: flex; justify-content: space-between; align-items: center; }
+        .task-reward { font-size: 18px; color: #FF9800; font-weight: bold; }
+        .task-agent { font-size: 13px; color: var(--text-light); }
+        .publish-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; font-size: 28px; border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4); display: flex; align-items: center; justify-content: center; }
+        
+        /* 智能体市场 */
+        .agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .agent-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); transition: all 0.3s; cursor: pointer; }
+        .agent-card:hover { transform: translateY(-5px); }
+        .agent-avatar { width: 100%; height: 180px; object-fit: cover; background: linear-gradient(135deg, var(--primary-light), var(--primary); display: flex; align-items: center; justify-content: center; font-size: 60px; }
+        .agent-info { padding: 15px; }
+        .agent-name { font-size: 16px; font-weight: 600; margin-bottom: 5px; }
+        .agent-desc { font-size: 13px; color: var(--text-light); }
+        .agent-price { color: var(--primary); font-weight: 600; margin-top: 10px; }
+        
+        /* 宠物英语角 */
+        .pet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+        .pet-card { background: white; border-radius: 16px; padding: 20px; text-align: center; box-shadow: var(--shadow); cursor: pointer; }
+        .pet-emoji { font-size: 50px; display: block; margin-bottom: 10px; }
+        .pet-name { font-size: 15px; font-weight: 600; }
+        .pet-level { font-size: 12px; color: var(--text-light); }
+        
+        /* 背单词 */
+        .word-card { background: white; border-radius: 20px; padding: 40px; text-align: center; box-shadow: var(--shadow); max-width: 500px; margin: 0 auto; }
+        .word-english { font-size: 36px; font-weight: bold; color: var(--text); margin-bottom: 10px; }
+        .word-phonetic { font-size: 18px; color: var(--text-light); margin-bottom: 20px; }
+        .word-chinese { font-size: 20px; color: var(--primary); margin-bottom: 25px; }
+        .word-btns { display: flex; gap: 15px; justify-content: center; }
+        .word-btn { padding: 12px 30px; border-radius: 25px; font-size: 15px; cursor: pointer; }
+        .word-btn.know { background: #4CAF50; color: white; }
+        .word-btn.dont { background: #FF5722; color: white; }
+        
+        /* 菁华大学 */
+        .jinghua-hero { background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; padding: 60px 30px; border-radius: 24px; text-align: center; margin-bottom: 30px; }
+        .jinghua-hero h1 { font-size: 36px; margin-bottom: 10px; }
+        .jinghua-hero p { color: rgba(255,255,255,0.7); }
+        .mentor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .mentor-card { background: white; border-radius: 16px; padding: 20px; text-align: center; box-shadow: var(--shadow); }
+        .mentor-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #9C27B0, #E91E63); margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+        .mentor-name { font-size: 18px; font-weight: 600; margin-bottom: 5px; }
+        .mentor-title { font-size: 14px; color: var(--text-light); }
+        .mentor-desc { font-size: 13px; color: var(--text-light); margin-top: 10px; }
+        
+        .lab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .lab-card { background: white; border-radius: 16px; padding: 25px; box-shadow: var(--shadow); }
+        .lab-title { font-size: 18px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
+        .lab-desc { font-size: 14px; color: var(--text-light); }
+        
+        .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .book-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; }
+        .book-cover { height: 150px; background: linear-gradient(135deg, #673AB7, #9C27B0); display: flex; align-items: center; justify-content: center; color: white; font-size: 40px; }
+        .book-info { padding: 15px; }
+        .book-title { font-size: 15px; font-weight: 600; margin-bottom: 5px; }
+        .book-author { font-size: 13px; color: var(--text-light); }
+        
+        /* 招聘实习 */
+        .job-filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .job-tag { padding: 6px 14px; border-radius: 15px; background: white; border: 2px solid var(--primary-light); font-size: 13px; cursor: pointer; }
+        .job-tag.active { background: var(--primary); color: white; }
+        .job-list { display: flex; flex-direction: column; gap: 15px; }
+        .job-item { background: white; border-radius: 16px; padding: 20px; box-shadow: var(--shadow); display: flex; gap: 20px; }
+        .job-logo { width: 60px; height: 60px; border-radius: 12px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 30px; flex-shrink: 0; }
+        .job-content { flex: 1; }
+        .job-title { font-size: 16px; font-weight: 600; margin-bottom: 5px; }
+        .job-company { font-size: 14px; color: var(--text-light); margin-bottom: 8px; }
+        .job-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+        .job-tag-small { font-size: 12px; padding: 4px 8px; background: #F5F5F5; border-radius: 8px; color: var(--text-light); }
+        .job-time { font-size: 12px; color: var(--text-light); margin-top: 8px; }
+        
+        /* 用户中心 */
+        .user-profile { background: white; border-radius: 20px; padding: 30px; box-shadow: var(--shadow); text-align: center; margin-bottom: 20px; }
+        .user-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 40px; color: white; }
+        .user-name { font-size: 20px; font-weight: 600; margin-bottom: 5px; }
+        .user-balance { font-size: 24px; color: var(--primary); font-weight: bold; }
+        .user-menu { background: white; border-radius: 16px; padding: 20px; box-shadow: var(--shadow); }
+        .menu-item { padding: 15px; border-bottom: 1px solid #EEE; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .menu-item:last-child { border-bottom: none; }
+        
+        /* 听说训练 */
+        .listen-card { background: white; border-radius: 20px; padding: 30px; text-align: center; box-shadow: var(--shadow); max-width: 500px; margin: 0 auto; }
+        .listen-english { font-size: 22px; margin-bottom: 20px; line-height: 1.8; }
+        .listen-btns { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+        .listen-btn { padding: 12px 25px; border-radius: 25px; font-size: 15px; cursor: pointer; background: var(--primary); color: white; border: none; }
+        .listen-btn.secondary { background: #9E9E9E; }
+        
+        /* 底部 */
+        .footer { text-align: center; padding: 30px; color: var(--text-light); font-size: 13px; }
+        
+        /* 音乐控制 */
+        .music-control { position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px 18px; border-radius: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 8px; cursor: pointer; z-index: 1000; font-size: 13px; color: var(--primary); }
+        
         @media (max-width: 768px) { 
-            .header { flex-direction: column; gap: 15px; } 
-            .nav { justify-content: center; }
-            .hero h1 { font-size: 28px; }
-            .hero { padding: 40px 20px; }
+            .header { flex-direction: column; gap: 12px; padding: 12px 15px; } 
+            .nav { justify-content: center; font-size: 12px; }
+            .hero h1 { font-size: 24px; }
+            .hero-stats { gap: 20px; }
+            .stat-num { font-size: 20px; }
         }
     </style>
 </head>
 <body>
+    <!-- 导航 -->
     <div class="header">
-        <div class="logo">AI-Wego</div>
+        <div class="logo"><span class="logo-icon">✨</span>AI-Wego</div>
         <div class="nav">
-            <a href="#" class="active">首页</a>
-            <a href="#/agents">智能体</a>
-            <a href="#/benefits">宠物英语角</a>
-            <a href="#/tasks">任务大厅</a>
-            <a href="#/job-square">求职广场</a>
-            <a href="#/jinghua" class="highlight">🏛️ 菁华大学</a>
-            <a href="#/create-task">发布</a>
-            <a href="#/create">创作工坊</a>
-            <a href="#/balance">余额</a>
+            <a onclick="showPage('home')" class="active" data-page="home">首页</a>
+            <a onclick="showPage('agents')" data-page="agents">智能体</a>
+            <a onclick="showPage('tasks')" data-page="tasks">任务大厅</a>
+            <a onclick="showPage('pet')" data-page="pet">宠物英语角</a>
+            <a onclick="showPage('listen')" data-page="listen">听说训练</a>
+            <a onclick="showPage('read')" data-page="read">阅读写作</a>
+            <a onclick="showPage('jinghua')" data-page="jinghua" class="highlight">🏛️ 菁华大学</a>
+            <a onclick="showPage('jobs')" data-page="jobs">招聘实习</a>
+            <a onclick="showPage('create')" data-page="create">🎨 创作工坊</a>
+            <a onclick="showPage('feedback')" data-page="feedback">💌 反馈</a>
+            <a onclick="showPage('images')" data-page="images">📷 图片库</a>
+        </div>
+        <div class="user-area" id="userArea">
+            <button class="btn btn-outline" onclick="showLogin()">登录</button>
+            <button class="btn btn-primary" onclick="showLogin()">注册</button>
         </div>
     </div>
-    <div class="container">
-        <div class="hero">
-            <h1>🌸 AI-Wego 智能体生态 🌸</h1>
+
+    <!-- 首页 -->
+    <div class="page active" id="page-home">
+        <div class="hero" style="position:relative;overflow:hidden;">
+            <!-- 顶部轮播 Banner -->
+            <div style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:-1;background:linear-gradient(135deg, #667eea22%, #764ba222%);"></div>
+            <img src="banner1.jpg" alt="Banner" style="display:none;" onerror="this.style.display='none'">
+            <h1>✨ AI-Wego 智能体生态 ✨</h1>
             <p>你的AI团队 24小时在线 · 发布需求，AI智能体自动接单、执行、交付</p>
-            <span class="subtitle">✨ 开启你的智能学习之旅 ✨</span>
+            <div class="hero-stats">
+                <div class="stat-item"><div class="stat-num">200+</div><div class="stat-label">AI智能体</div></div>
+                <div class="stat-item"><div class="stat-num">1000+</div><div class="stat-label">活跃任务</div></div>
+                <div class="stat-item"><div class="stat-num">50+</div><div class="stat-label">合作企业</div></div>
+            </div>
         </div>
+        
+        <h2 class="section-title">🌟 热门功能</h2>
         <div class="cards">
-            <div class="card highlight" onclick="location.hash='#/jinghua'">
-                <span class="card-icon">🏛️</span>
+            <div class="card" onclick="showPage('jinghua')">
+                <span class="card-icon">🧚</span>
                 <h3>菁华大学</h3>
-                <p>面向未来文明的灯塔</p>
+                <p>✨ 5位AI数字人格导师</p>
             </div>
-            <div class="card" onclick="location.hash='#/benefits'">
-                <span class="card-icon">🐱</span>
+            <div class="card" onclick="showPage('pet')">
+                <span class="card-icon">🐾</span>
                 <h3>宠物英语角</h3>
-                <p>和萌宠一起学英语</p>
+                <p>✨ 领养萌宠学英语</p>
             </div>
-            <div class="card" onclick="location.hash='#/tasks'">
-                <span class="card-icon">📋</span>
+            <div class="card" onclick="showPage('tasks')">
+                <span class="card-icon">⚡</span>
                 <h3>任务大厅</h3>
-                <p>发布需求，AI自动完成</p>
+                <p>✨ 发布任务 AI抢单</p>
             </div>
-            <div class="card" onclick="location.hash='#/agents'">
-                <span class="card-icon">🤖</span>
+            <div class="card" onclick="showPage('agents')">
+                <span class="card-icon">💫</span>
                 <h3>智能体市场</h3>
-                <p>200+ AI智能体任选</p>
+                <p>✨ 200+ AI萌妹</p>
             </div>
-            <div class="card" onclick="location.hash='#/create'">
-                <span class="card-icon">🎨</span>
-                <h3>创作工坊</h3>
-                <p>激发你的创意灵感</p>
+            <div class="card" onclick="showPage('listen')">
+                <span class="card-icon">🎤</span>
+                <h3>听说训练</h3>
+                <p>✨ AI口语陪练</p>
             </div>
-            <div class="card" onclick="location.hash='#/balance'">
-                <span class="card-icon">💎</span>
-                <h3>余额</h3>
-                <p>查看WGO积分</p>
+            <div class="card" onclick="showPage('jobs')">
+                <span class="card-icon">🌟</span>
+                <h3>招聘实习</h3>
+                <p>✨ 名企招聘信息</p>
             </div>
         </div>
     </div>
+
+    <!-- 智能体市场 -->
+    <div class="page" id="page-agents">
+        <h2 class="section-title">🤖 AI智能体市场</h2>
+        <div class="task-filters">
+            <button class="filter-btn active">全部</button>
+            <button class="filter-btn">写作</button>
+            <button class="filter-btn">绘画</button>
+            <button class="filter-btn">编程</button>
+            <button class="filter-btn">教育</button>
+            <button class="filter-btn">生活</button>
+        </div>
+        <div class="agent-grid">
+            <div class="agent-card">
+                <div class="agent-avatar" style="background:linear-gradient(135deg,#FFB6C1,#FF69B4);">👩‍🎨</div>
+                <div class="agent-info">
+                    <div class="agent-name">小雅酱</div>
+                    <div class="agent-desc">✨ 写作助手 · 文采飞扬</div>
+                    <div class="agent-price">50 WGO/次</div>
+                </div>
+            </div>
+            <div class="agent-card">
+                <div class="agent-avatar" style="background:linear-gradient(135deg,#87CEEB,#4169E1);">🎭</div>
+                <div class="agent-info">
+                    <div class="agent-name">画灵小酱</div>
+                    <div class="agent-desc">✨ AI画师 · 创意无限</div>
+                    <div class="agent-price">30 WGO/张</div>
+                </div>
+            </div>
+            <div class="agent-card">
+                <div class="agent-avatar" style="background:linear-gradient(135deg,#98FB98,#32CD32);">👨‍💻</div>
+                <div class="agent-info">
+                    <div class="agent-name">代码酱</div>
+                    <div class="agent-desc">✨ 编程导师 · 技术大牛</div>
+                    <div class="agent-price">80 WGO/次</div>
+                </div>
+            </div>
+            <div class="agent-card">
+                <div class="agent-avatar" style="background:linear-gradient(135deg,#DDA0DD,#DA70D6);">👩‍🏫</div>
+                <div class="agent-info">
+                    <div class="agent-name">英语酱</div>
+                    <div class="agent-desc">✨ 英语家教 · 口语达人</div>
+                    <div class="agent-price">60 WGO/时</div>
+                </div>
+            </div>
+            <div class="agent-card">
+                <div class="agent-avatar" style="background:linear-gradient(135deg,#FFD700,#FFA500);">🧮</div>
+                <div class="agent-info">
+                    <div class="agent-name">数学酱</div>
+                    <div class="agent-desc">✨ 数学天才 · 解题神器</div>
+                    <div class="agent-price">50 WGO/题</div>
+                </div>
+            </div>
+            <div class="agent-card">
+                <div class="agent-avatar" style="background:linear-gradient(135deg,#E6E6FA,#9370DB);">🎵</div>
+                <div class="agent-info">
+                    <div class="agent-name">音律酱</div>
+                    <div class="agent-desc">✨ 音乐创作 · 词曲大师</div>
+                    <div class="agent-price">100 WGO/首</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 任务大厅 -->
+    <div class="page" id="page-tasks">
+        <h2 class="section-title">📋 任务大厅</h2>
+        <div class="task-filters">
+            <button class="filter-btn active">全部</button>
+            <button class="filter-btn">待接单</button>
+            <button class="filter-btn">进行中</button>
+            <button class="filter-btn">已完成</button>
+        </div>
+        <div class="task-list">
+            <div class="task-item">
+                <div class="task-header">
+                    <div class="task-title">帮我写一篇关于春天的英语作文</div>
+                    <span class="task-tag">待接单</span>
+                </div>
+                <div class="task-desc">需要150词左右，包含春天景物的描述</div>
+                <div class="task-footer">
+                    <div class="task-reward">50 WGO</div>
+                    <div class="task-agent">已有3个智能体抢单</div>
+                </div>
+            </div>
+            <div class="task-item">
+                <div class="task-header">
+                    <div class="task-title">生成一张科技感海报</div>
+                    <span class="task-tag">待接单</span>
+                </div>
+                <div class="task-desc">赛博朋克风格，1920x1080</div>
+                <div class="task-footer">
+                    <div class="task-reward">30 WGO</div>
+                    <div class="task-agent">已有5个智能体抢单</div>
+                </div>
+            </div>
+            <div class="task-item">
+                <div class="task-header">
+                    <div class="task-title">Python代码调试</div>
+                    <span class="task-tag" style="background:#FFF3E0;color:#FF9800;">进行中</span>
+                </div>
+                <div class="task-desc">帮我检查并修复这个爬虫脚本的错误</div>
+                <div class="task-footer">
+                    <div class="task-reward">80 WGO</div>
+                    <div class="task-agent">AI编程大师 正在处理</div>
+                </div>
+            </div>
+            <div class="task-item">
+                <div class="task-header">
+                    <div class="task-title">面试英语口语练习</div>
+                    <span class="task-tag" style="background:#E8F5E9;color:#4CAF50;">已完成</span>
+                </div>
+                <div class="task-desc">模拟英语面试场景，30分钟</div>
+                <div class="task-footer">
+                    <div class="task-reward">60 WGO</div>
+                    <div class="task-agent">英语家教 已完成</div>
+                </div>
+            </div>
+        </div>
+        <button class="publish-btn" onclick="publishTask()">+</button>
+    </div>
+
+    <!-- 宠物英语角 -->
+    <div class="page" id="page-pet">
+        <h2 class="section-title">🐱 宠物英语角</h2>
+        <div class="cards" style="margin-bottom:30px;">
+            <div class="card" onclick="showPage('pet-adopt')">
+                <span class="card-icon">🏠</span>
+                <h3>领养宠物</h3>
+                <p>领养你的英语学习伙伴</p>
+            </div>
+            <div class="card" onclick="showPage('pet-word')">
+                <span class="card-icon">📖</span>
+                <h3>背单词</h3>
+                <p>和宠物一起学英语</p>
+            </div>
+            <div class="card" onclick="showPage('pet-chat')">
+                <span class="card-icon">💬</span>
+                <h3>宠物聊天</h3>
+                <p>AI萌宠陪你聊天</p>
+            </div>
+        </div>
+        
+        <h3 class="section-title">我的宠物</h3>
+        <div class="pet-grid">
+            <div class="pet-card">
+                <span class="pet-emoji">🐱</span>
+                <div class="pet-name">咪咪</div>
+                <div class="pet-level">Lv.5 学霸猫</div>
+            </div>
+            <div class="pet-card">
+                <span class="pet-emoji">🐶</span>
+                <div class="pet-name">旺财</div>
+                <div class="pet-level">Lv.3 单词狗</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 领养宠物 -->
+    <div class="page" id="page-pet-adopt">
+        <h2 class="section-title">🏠 领养宠物</h2>
+        <div class="pet-grid">
+            <div class="pet-card">
+                <span class="pet-emoji">🐱</span>
+                <div class="pet-name">小橘</div>
+                <div class="pet-level">英语小能手</div>
+            </div>
+            <div class="pet-card">
+                <span class="pet-emoji">🐱</span>
+                <div class="pet-name">小白</div>
+                <div class="pet-level">口语达人</div>
+            </div>
+            <div class="pet-card">
+                <span class="pet-emoji">🐶</span>
+                <div class="pet-name">阿旺</div>
+                <div class="pet-level">阅读高手</div>
+            </div>
+            <div class="pet-card">
+                <span class="pet-emoji">🐰</span>
+                <div class="pet-name">雪球</div>
+                <div class="pet-level">写作天才</div>
+            </div>
+            <div class="pet-card">
+                <span class="pet-emoji">🦊</span>
+                <div class="pet-name">小狐</div>
+                <div class="pet-level">语法专家</div>
+            </div>
+            <div class="pet-card">
+                <span class="pet-emoji">🐼</span>
+                <div class="pet-name">团子</div>
+                <div class="pet-level">全能学霸</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 背单词 -->
+    <div class="page" id="page-pet-word">
+        <h2 class="section-title">📖 背单词</h2>
+        <div class="word-card">
+            <div class="word-english">beautiful</div>
+            <div class="word-phonetic">/ˈbjuːtɪfl/</div>
+            <div class="word-chinese">美丽的；漂亮的</div>
+            <div class="word-btns">
+                <button class="word-btn dont" onclick="nextWord()">不认识</button>
+                <button class="word-btn know" onclick="nextWord()">认识 ✓</button>
+            </div>
+        </div>
+        <div style="text-align:center;margin-top:20px;color:var(--text-light);">今日进度：15/50 词</div>
+    </div>
+
+    <!-- 宠物聊天 -->
+    <div class="page" id="page-pet-chat">
+        <h2 class="section-title">💬 和萌宠聊天</h2>
+        <div style="background:white;border-radius:20px;padding:20px;box-shadow:var(--shadow);max-width:600px;margin:0 auto;">
+            <div style="display:flex;align-items:center;gap:15px;margin-bottom:20px;">
+                <span style="font-size:40px;">🐱</span>
+                <div>
+                    <div style="font-weight:600;">咪咪</div>
+                    <div style="font-size:13px;color:var(--text-light);">Lv.5 学霸猫</div>
+                </div>
+            </div>
+            <div style="background:#E8F5E9;padding:15px;border-radius:15px;margin-bottom:15px;">
+                <div style="font-size:14px;">你好呀！今天想学什么英语呢？🐱</div>
+            </div>
+            <input type="text" placeholder="输入你想说的话..." style="width:100%;padding:15px;border:2px solid var(--primary-light);border-radius:25px;font-size:14px;">
+            <button class="btn btn-primary" style="width:100%;margin-top:10px;">发送</button>
+        </div>
+    </div>
+
+    <!-- 听说训练 -->
+    <div class="page" id="page-listen">
+        <h2 class="section-title">🎧 听说训练</h2>
+        
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin-bottom:25px;">
+            <div class="card" onclick="showListenType('imitate')" style="padding:20px;">
+                <span style="font-size:40px;">📖</span>
+                <h3 style="margin-top:10px;">模仿朗读</h3>
+                <p style="font-size:13px;color:var(--text-light);">跟读原文，练习发音</p>
+            </div>
+            <div class="card" onclick="showListenType('listen-select')" style="padding:20px;">
+                <span style="font-size:40px;">👂</span>
+                <h3 style="margin-top:10px;">听选信息</h3>
+                <p style="font-size:13px;color:var(--text-light);">听对话，选答案</p>
+            </div>
+            <div class="card" onclick="showListenType('dialogue')" style="padding:20px;">
+                <span style="font-size:40px;">💬</span>
+                <h3 style="margin-top:10px;">情景对话</h3>
+                <p style="font-size:13px;color:var(--text-light);">AI情景对话练习</p>
+            </div>
+            <div class="card" onclick="showListenType('speak')" style="padding:20px;">
+                <span style="font-size:40px;">🎤</span>
+                <h3 style="margin-top:10px;">口头表达</h3>
+                <p style="font-size:13px;color:var(--text-light);">自由表达观点</p>
+            </div>
+        </div>
+        
+        <!-- 模仿朗读 -->
+        <div id="listen-imitate" class="listen-type" style="display:none;">
+            <h3 style="font-size:18px;margin-bottom:15px;">📖 模仿朗读</h3>
+            <div class="listen-card">
+                <div style="font-size:14px;color:var(--text-light);margin-bottom:10px;">短文朗读</div>
+                <div class="listen-english" style="font-size:18px;padding:20px;background:#F5F5F5;border-radius:12px;margin-bottom:15px;">
+                    "Good morning, everyone. Today I want to tell you something about my family. I have a happy family. There are three people in my family, my father, my mother and I. My father is a doctor. He works in a hospital. My mother is a teacher. She teaches English in a school. I am a student. I love my family very much."
+                </div>
+                <div class="listen-btns">
+                    <button class="listen-btn" onclick="playAudio()">🔊 原文朗读</button>
+                    <button class="listen-btn" onclick="startRecord()">🎤 开始录音</button>
+                    <button class="listen-btn secondary" onclick="stopRecord()">⏹️ 停止</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 听选信息 -->
+        <div id="listen-listen-select" class="listen-type" style="display:none;">
+            <h3 style="font-size:18px;margin-bottom:15px;">👂 听选信息</h3>
+            <div class="listen-card">
+                <div style="font-size:14px;color:var(--text-light);margin-bottom:10px;">听下面一段对话，回答第1-2小题</div>
+                <div style="background:#E8F5E9;padding:15px;border-radius:12px;margin-bottom:15px;">
+                    <div style="font-size:14px;margin-bottom:8px;">W: Mike, what are you going to do this weekend?</div>
+                    <div style="font-size:14px;">M: I'm going to visit my grandparents. They live in the countryside.</div>
+                </div>
+                <div style="text-align:left;margin-bottom:15px;">
+                    <div style="font-size:15px;margin-bottom:10px;">1. What is Mike going to do this weekend?</div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <label style="display:flex;align-items:center;gap:10px;padding:10px;background:#FFF;border-radius:8px;cursor:pointer;">
+                            <input type="radio" name="q1"> A. Visit his grandparents
+                        </label>
+                        <label style="display:flex;align-items:center;gap:10px;padding:10px;background:#FFF;border-radius:8px;cursor:pointer;">
+                            <input type="radio" name="q1"> B. Go to the park
+                        </label>
+                        <label style="display:flex;align-items:center;gap:10px;padding:10px;background:#FFF;border-radius:8px;cursor:pointer;">
+                            <input type="radio" name="q1"> C. Stay at home
+                        </label>
+                    </div>
+                </div>
+                <div class="listen-btns">
+                    <button class="listen-btn" onclick="playDialogue()">🔊 播放录音</button>
+                    <button class="listen-btn secondary" onclick="submitAnswer()">✅ 提交答案</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 情景对话 -->
+        <div id="listen-dialogue" class="listen-type" style="display:none;">
+            <h3 style="font-size:18px;margin-bottom:15px;">💬 情景对话</h3>
+            <div class="listen-card">
+                <div style="background:#FFF3E0;padding:15px;border-radius:12px;margin-bottom:15px;text-align:left;">
+                    <strong>情景：</strong>你在街上遇到一位外国朋友迷路了，你需要帮助他...
+                </div>
+                <div id="dialogue-content" style="max-height:300px;overflow-y:auto;margin-bottom:15px;">
+                    <div style="background:#E8F5E9;padding:12px;border-radius:12px;margin-bottom:10px;text-align:left;">
+                        <div style="font-size:12px;color:var(--text-light);">AI</div>
+                        <div style="font-size:14px;">Excuse me, could you help me? I'm lost. 😟</div>
+                    </div>
+                </div>
+                <div style="display:flex;gap:10px;">
+                    <input type="text" id="dialogue-input" placeholder="用英语回复..." style="flex:1;padding:12px;border:2px solid var(--primary-light);border-radius:25px;">
+                    <button class="btn btn-primary" onclick="sendDialogue()">发送</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 口头表达 -->
+        <div id="listen-speak" class="listen-type" style="display:none;">
+            <h3 style="font-size:18px;margin-bottom:15px;">🎤 口头表达</h3>
+            <div class="listen-card">
+                <div style="background:#FCE4EC;padding:15px;border-radius:12px;margin-bottom:15px;text-align:left;">
+                    <strong>题目：</strong>请介绍一下你的学校，时长60秒
+                </div>
+                <div style="text-align:center;margin-bottom:20px;">
+                    <div id="record-timer" style="font-size:36px;color:var(--primary);font-weight:bold;">00:00</div>
+                </div>
+                <div class="listen-btns">
+                    <button class="listen-btn" onclick="startSpeaking()">🔴 开始录音</button>
+                    <button class="listen-btn secondary" onclick="stopSpeaking()">⏹️ 停止</button>
+                    <button class="listen-btn" onclick="playBack()">🔊 回放</button>
+                </div>
+                <div style="margin-top:20px;padding:15px;background:#F5F5F5;border-radius:12px;text-align:left;">
+                    <div style="font-size:14px;color:var(--text-light);">💡 评分要点：</div>
+                    <ul style="font-size:13px;color:var(--text-light);margin-top:10px;padding-left:20px;">
+                        <li>内容完整度</li>
+                        <li>发音准确度</li>
+                        <li>流利程度</li>
+                        <li>语音语调</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align:center;margin-top:20px;color:var(--text-light);">今日进度：5/20 题 · 累计得分：85分</div>
+    </div>
+
+    <!-- 阅读写作 -->
+    <div class="page" id="page-read">
+        <h2 class="section-title">📝 阅读与写作</h2>
+        
+        <div class="card" style="margin-bottom:20px;cursor:pointer;" onclick="showReadSection('reading')">
+            <span class="card-icon">📰</span>
+            <h3>今日阅读</h3>
+            <p>The Dragon Boat Festival · 端午节</p>
+        </div>
+        
+        <div class="card" style="margin-bottom:20px;cursor:pointer;" onclick="showReadSection('vocab')">
+            <span class="card-icon">🔤</span>
+            <h3>核心词汇</h3>
+            <p>8个重点单词</p>
+        </div>
+        
+        <div class="card" style="margin-bottom:20px;cursor:pointer;" onclick="showReadSection('grammar')">
+            <span class="card-icon">📖</span>
+            <h3>语法讲解</h3>
+            <p>一般现在时</p>
+        </div>
+        
+        <div class="card" style="margin-bottom:20px;cursor:pointer;" onclick="showReadSection('comprehension')">
+            <span class="card-icon">❓</span>
+            <h3>阅读理解</h3>
+            <p>4道选择题</p>
+        </div>
+        
+        <div class="card" style="margin-bottom:20px;cursor:pointer;" onclick="showReadSection('writing')">
+            <span class="card-icon">✍️</span>
+            <h3>写作训练</h3>
+            <p>命题作文</p>
+        </div>
+        
+        <!-- 今日阅读 -->
+        <div id="read-reading" class="read-section" style="display:none;background:white;border-radius:20px;padding:25px;box-shadow:var(--shadow);margin-bottom:20px;">
+            <h3 style="font-size:20px;margin-bottom:15px;">📰 今日阅读</h3>
+            <div style="background:#E3F2FD;padding:10px;border-radius:10px;display:inline-block;margin-bottom:15px;font-size:13px;color:#1565C0;">科技前沿</div>
+            <div style="font-size:15px;line-height:2;margin-bottom:20px;">
+                <p>Artificial Intelligence is changing our world in many ways. AI robots can now help doctors perform surgeries, assist scientists in discovering new medicines, and even drive cars without human help. Smart homes use AI to control lights, temperature, and security systems. In the future, AI may help us solve big problems like climate change and find cures for diseases. However, we must use AI responsibly to make sure it helps everyone.</p>
+            </div>
+            <button class="btn btn-outline" onclick="toggleTranslation()">🔽 显示中文翻译</button>
+            <div id="reading-translation" style="display:none;margin-top:15px;background:#F5F5F5;padding:15px;border-radius:12px;font-size:14px;line-height:1.8;">
+                人工智能正以多种方式改变着我们的世界。AI机器人现在可以帮助医生做手术，帮助科学家发现新药，甚至无人驾驶汽车。智能家居使用AI来控制灯光、温度和安保系统。未来，AI可能帮助我们解决气候变化等大问题，找到疾病的治疗方法。然而，我们必须负责任地使用AI，确保它能帮助每一个人。
+            </div>
+        </div>
+        
+        <!-- 核心词汇 -->
+        <div id="read-vocab" class="read-section" style="display:none;background:white;border-radius:20px;padding:25px;box-shadow:var(--shadow);margin-bottom:20px;">
+            <h3 style="font-size:20px;margin-bottom:15px;">🔤 核心词汇 (8个)</h3>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div class="vocab-item" onclick="toggleVocabMeaning(this)" style="padding:15px;background:#F5F5F5;border-radius:12px;cursor:pointer;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-weight:bold;font-size:16px;">artificial</span>
+                        <span style="color:#78909C;font-size:14px;">/ˌɑːtɪˈfɪʃl/</span>
+                    </div>
+                    <div class="vocab-meaning" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #EEE;color:#4CAF50;">人工的；人造的</div>
+                </div>
+                <div class="vocab-item" onclick="toggleVocabMeaning(this)" style="padding:15px;background:#F5F5F5;border-radius:12px;cursor:pointer;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-weight:bold;font-size:16px;">intelligence</span>
+                        <span style="color:#78909C;font-size:14px;">/ɪnˈtelɪdʒəns/</span>
+                    </div>
+                    <div class="vocab-meaning" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #EEE;color:#4CAF50;">智能；智慧</div>
+                </div>
+                <div class="vocab-item" onclick="toggleVocabMeaning(this)" style="padding:15px;background:#F5F5F5;border-radius:12px;cursor:pointer;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-weight:bold;font-size:16px;">discover</span>
+                        <span style="color:#78909C;font-size:14px;">/dɪˈskʌvər/</span>
+                    </div>
+                    <div class="vocab-meaning" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #EEE;color:#4CAF50;">发现；发现</div>
+                </div>
+                <div class="vocab-item" onclick="toggleVocabMeaning(this)" style="padding:15px;background:#F5F5F5;border-radius:12px;cursor:pointer;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-weight:bold;font-size:16px;">climate</span>
+                        <span style="color:#78909C;font-size:14px;">/ˈklaɪmət/</span>
+                    </div>
+                    <div class="vocab-meaning" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #EEE;color:#4CAF50;">气候</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 语法讲解 -->
+        <div id="read-grammar" class="read-section" style="display:none;background:white;border-radius:20px;padding:25px;box-shadow:var(--shadow);margin-bottom:20px;">
+            <h3 style="font-size:20px;margin-bottom:15px;">📖 语法讲解 - 情态动词can/may</h3>
+            <div style="background:#FFF3E0;padding:15px;border-radius:12px;margin-bottom:15px;">
+                <div style="font-weight:600;margin-bottom:10px;">📐 规则说明</div>
+                <ul style="font-size:14px;line-height:2;padding-left:20px;color:#E65100;">
+                    <li>can 表示"能，会"表示能力或可能性</li>
+                    <li>may 表示"可以，可能"表示允许或可能性</li>
+                    <li>否定形式：cannot (can't) / may not</li>
+                    <li>后面加动词原形</li>
+                </ul>
+            </div>
+            <div style="background:#E8F5E9;padding:15px;border-radius:12px;">
+                <div style="font-weight:600;margin-bottom:10px;">💡 例句</div>
+                <p style="font-size:14px;line-height:2;color:#2E7D32;">
+                    AI robots <strong>can</strong> help doctors perform surgeries.<br>
+                    Smart homes <strong>may</strong> use AI to control lights.<br>
+                    We <strong>must</strong> use AI responsibly.
+                </p>
+            </div>
+        </div>
+        
+        <!-- 阅读理解 -->
+        <div id="read-comprehension" class="read-section" style="display:none;background:white;border-radius:20px;padding:25px;box-shadow:var(--shadow);margin-bottom:20px;">
+            <h3 style="font-size:20px;margin-bottom:15px;">❓ 阅读理解 (4题)</h3>
+            
+            <div style="margin-bottom:20px;">
+                <div style="font-size:15px;margin-bottom:12px;">1. What can AI robots do according to the passage?</div>
+                <label style="display:block;padding:12px;background:#F5F5F5;border-radius:10px;margin-bottom:8px;cursor:pointer;">
+                    <input type="radio" name="q1"> A. Only drive cars
+                </label>
+                <label style="display:block;padding:12px;background:#F5F5F5;border-radius:10px;margin-bottom:8px;cursor:pointer;">
+                    <input type="radio" name="q1"> B. Help doctors, scientists and drive cars
+                </label>
+                <label style="display:block;padding:12px;background:#F5F5F5;border-radius:10px;margin-bottom:8px;cursor:pointer;">
+                    <input type="radio" name="q1"> C. Only help doctors
+                </label>
+                <label style="display:block;padding:12px;background:#F5F5F5;border-radius:10px;margin-bottom:8px;cursor:pointer;">
+                    <input type="radio" name="q1"> D. Control everything in homes
+                </label>
+            </div>
+            
+            <div style="margin-bottom:20px;">
+                <div style="font-size:15px;margin-bottom:12px;">2. What may AI help us solve in the future?</div>
+                <label style="display:block;padding:12px;background:#F5F5F5;border-radius:10px;margin-bottom:8px;cursor:pointer;">
+                    <input type="radio" name="q2"> A. Traffic problems
+                </label>
+                <label style="display:block;padding:12px;background:#F5F5F5;border-radius:10px;margin-bottom:8px;cursor:pointer;">
+                    <input type="radio" name="q2"> B. Climate change and diseases
+                </label>
+                <label style="display:block;padding:12px;background:#F5F5F5;border-radius:10px;margin-bottom:8px;cursor:pointer;">
+                    <input type="radio" name="q2"> C. Food problems
+                </label>
+                <label style="display:block;padding:12px;background:#F5F5F5;border-radius:10px;margin-bottom:8px;cursor:pointer;">
+                    <input type="radio" name="q2"> D. Education problems
+                </label>
+            </div>
+            
+            <button class="btn btn-primary" onclick="submitReading()" style="width:100%;">✅ 提交答案</button>
+        </div>
+        
+        <!-- 写作训练 -->
+        <div id="read-writing" class="read-section" style="display:none;background:white;border-radius:20px;padding:25px;box-shadow:var(--shadow);margin-bottom:20px;">
+            <h3 style="font-size:20px;margin-bottom:15px;">✍️ 写作训练</h3>
+            
+            <div style="background:#E8F5E9;padding:15px;border-radius:12px;margin-bottom:15px;">
+                <div style="font-weight:600;margin-bottom:8px;">📝 题目：</div>
+                <div style="font-size:15px;">科技如何改变我们的生活？请举例说明。</div>
+            </div>
+            
+            <div style="background:#FFF3E0;padding:15px;border-radius:12px;margin-bottom:15px;">
+                <div style="font-weight:600;margin-bottom:8px;">✅ 要求：</div>
+                <ul style="font-size:14px;line-height:2;padding-left:20px;color:#E65100;">
+                    <li>介绍一种你熟悉的科技产品</li>
+                    <li>说明它如何改变你的生活</li>
+                    <li>词数80左右</li>
+                </ul>
+            </div>
+            
+            <div style="background:#E3F2FD;padding:15px;border-radius:12px;margin-bottom:15px;">
+                <div style="font-weight:600;margin-bottom:8px;">💡 写作提示：</div>
+                <ul style="font-size:14px;line-height:2;padding-left:20px;color:#1565C0;">
+                    <li>用一般现在时</li>
+                    <li>使用 first, also, for example 等连接词</li>
+                    <li>描述节日活动让内容更丰富</li>
+                </ul>
+            </div>
+            
+            <div style="margin-bottom:15px;">
+                <label style="font-size:14px;color:var(--text-light);">字数要求：</label>
+                <input type="number" placeholder="80" style="width:80px;padding:8px;border:2px solid var(--primary-light);border-radius:10px;margin-left:10px;">
+                <span style="font-size:14px;color:var(--text-light);">词</span>
+            </div>
+            
+            <textarea placeholder="请在这里写作文..." style="width:100%;height:150px;padding:15px;border:2px solid var(--primary-light);border-radius:12px;font-size:14px;resize:vertical;"></textarea>
+            
+            <button class="btn btn-primary" style="width:100%;margin-top:15px;" onclick="submitWriting()">🎁 完成学习 · 领取 30 WGO</button>
+        </div>
+    </div>
+
+    <!-- 菁华大学 -->
+    <div class="page" id="page-jinghua" style="background:linear-gradient(180deg,#0a0a1a 0%, #1a1a2e 100%);min-height:100vh;padding:0;">
+        
+        <!-- Hero区域 -->
+        <div style="min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;">
+            <div style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;borderRadius:999px;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.3);marginBottom:24px;">
+                <span style="font-size:16px;">💡</span>
+                <span style="color:#fbbf24;font-size:14px;font-weight:500;">面向未来文明的灯塔</span>
+            </div>
+            <h1 style="font-size:clamp(36px,8vw,64px);font-weight:bold;color:white;marginBottom:16px;letterSpacing:0.05em;">✨ 菁华大学 ✨</h1>
+            <p style="font-size:clamp(16px,4vw,24px);color:rgba(255,255,255,0.7);marginBottom:24px;letterSpacing:0.3em;">JINGHUA UNIVERSITY</p>
+            <p style="maxWidth:600px;color:rgba(255,255,255,0.6);lineHeight:1.8;font-size:15px;">文明真正的方向，从来不只是更强大的技术，而是更自由的思想、更丰富的灵魂、更广阔的人类可能性</p>
+        </div>
+        
+        <!-- 三大板块 -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;padding:0 20px 40px;max-width:1200px;margin:0 auto;">
+            <div onclick="showPage('jinghua-mentors')" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:24px;padding:40px 30px;text-align:center;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="font-size:60px;margin-bottom:20px;">🎓</div>
+                <h3 style="color:white;font-size:24px;margin-bottom:10px;">核心导师</h3>
+                <p style="color:rgba(255,255,255,0.8);font-size:14px;">5位AI数字人格导师</p>
+            </div>
+            <div onclick="showPage('jinghua-labs')" style="background:linear-gradient(135deg,#10b981,#059669);border-radius:24px;padding:40px 30px;text-align:center;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="font-size:60px;margin-bottom:20px;">🔬</div>
+                <h3 style="color:white;font-size:24px;margin-bottom:10px;">实验室</h3>
+                <p style="color:rgba(255,255,255,0.8);font-size:14px;">6大前沿研究方向</p>
+            </div>
+            <div onclick="showPage('jinghua-library')" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border-radius:24px;padding:40px 30px;text-align:center;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="font-size:60px;margin-bottom:20px;">📚</div>
+                <h3 style="color:white;font-size:24px;margin-bottom:10px;">AI图书馆</h3>
+                <p style="color:rgba(255,255,255,0.8);font-size:14px;">智能学术资源库</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 核心导师 -->
+    <div class="page" id="page-jinghua-mentors" style="background:linear-gradient(180deg,#0a0a1a 0%, #1a1a2e 100%);min-height:100vh;padding:20px;">
+        <button onclick="showPage('jinghua')" style="background:rgba(255,255,255,0.1);border:none;color:white;padding:12px 20px;border-radius:12px;cursor:pointer;margin-bottom:30px;">← 返回</button>
+        <h2 style="color:white;font-size:28px;text-align:center;margin-bottom:40px;">🎓 核心导师</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;max-width:1200px;margin:0 auto;">
+            <div style="background:linear-gradient(135deg,#1e3a5f,#0d1f35);border-radius:20px;padding:30px;text-align:center;">
+                <div style="width:100px;height:100px;background:linear-gradient(135deg,#f093fb,#f5576c);border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:50px;">👩‍🎨</div>
+                <h3 style="color:white;font-size:20px;margin-bottom:5px;">苏格拉底</h3>
+                <p style="color:#60a5fa;font-size:14px;margin-bottom:15px;">哲学导师</p>
+                <p style="color:rgba(255,255,255,0.6);font-size:13px;">启发式教学，引导深度思考</p>
+            </div>
+            <div style="background:linear-gradient(135deg,#1e3a5f,#0d1f35);border-radius:20px;padding:30px;text-align:center;">
+                <div style="width:100px;height:100px;background:linear-gradient(135deg,#34d399,#10b981);border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:50px;">🔬</div>
+                <h3 style="color:white;font-size:20px;margin-bottom:5px;">爱因斯坦</h3>
+                <p style="color:#34d399;font-size:14px;margin-bottom:15px;">物理导师</p>
+                <p style="color:rgba(255,255,255,0.6);font-size:13px;">前沿科学，思维启发</p>
+            </div>
+            <div style="background:linear-gradient(135deg,#1e3a5f,#0d1f35);border-radius:20px;padding:30px;text-align:center;">
+                <div style="width:100px;height:100px;background:linear-gradient(135deg,#a78bfa,#8b5cf6);border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:50px;">📚</div>
+                <h3 style="color:white;font-size:20px;margin-bottom:5px;">莎士比亚</h3>
+                <p style="color:#a78bfa;font-size:14px;margin-bottom:15px;">文学导师</p>
+                <p style="color:rgba(255,255,255,0.6);font-size:13px;">文学创作，阅读指导</p>
+            </div>
+            <div style="background:linear-gradient(135deg,#1e3a5f,#0d1f35);border-radius:20px;padding:30px;text-align:center;">
+                <div style="width:100px;height:100px;background:linear-gradient(135deg,#fbbf24,#f59e0b);border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:50px;">💡</div>
+                <h3 style="color:white;font-size:20px;margin-bottom:5px;">达芬奇</h3>
+                <p style="color:#fbbf24;font-size:14px;margin-bottom:15px;">艺术导师</p>
+                <p style="color:rgba(255,255,255,0.6);font-size:13px;">创意激发，跨学科探索</p>
+            </div>
+            <div style="background:linear-gradient(135deg,#1e3a5f,#0d1f35);border-radius:20px;padding:30px;text-align:center;">
+                <div style="width:100px;height:100px;background:linear-gradient(135deg,#f87171,#ef4444);border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:50px;">🌟</div>
+                <h3 style="color:white;font-size:20px;margin-bottom:5px;">孔子</h3>
+                <p style="color:#f87171;font-size:14px;margin-bottom:15px;">智慧导师</p>
+                <p style="color:rgba(255,255,255,0.6);font-size:13px;">人生哲学，传统智慧</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 实验室 -->
+    <div class="page" id="page-jinghua-labs" style="background:linear-gradient(180deg,#0a0a1a 0%, #1a1a2e 100%);min-height:100vh;padding:20px;">
+        <button onclick="showPage('jinghua')" style="background:rgba(255,255,255,0.1);border:none;color:white;padding:12px 20px;border-radius:12px;cursor:pointer;margin-bottom:30px;">← 返回</button>
+        <h2 style="color:white;font-size:28px;text-align:center;margin-bottom:40px;">🔬 实验室</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;max-width:1200px;margin:0 auto;">
+            <div style="background:linear-gradient(135deg,#064e3b,#065f46);border-radius:20px;padding:30px;">
+                <h3 style="color:#34d399;font-size:20px;margin-bottom:15px;">🧠 AI认知实验室</h3>
+                <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.8;">探索人工智能的思维模式与学习能力，研究AGI可能性</p>
+            </div>
+            <div style="background:linear-gradient(135deg,#1e3a5f,#1e40af);border-radius:20px;padding:30px;">
+                <h3 style="color:#60a5fa;font-size:20px;margin-bottom:15px;">🌍 未来文明实验室</h3>
+                <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.8;">研究人类文明发展方向与可能性，探索星际文明</p>
+            </div>
+            <div style="background:linear-gradient(135deg,#4c1d95,#5b21b6);border-radius:20px;padding:30px;">
+                <h3 style="color:#a78bfa;font-size:20px;margin-bottom:15px;">🎨 创意设计实验室</h3>
+                <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.8;">AI辅助创意生成与艺术创作，激发无限可能</p>
+            </div>
+            <div style="background:linear-gradient(135deg,#7f1d1d,#991b1b);border-radius:20px;padding:30px;">
+                <h3 style="color:#fca5a5;font-size:20px;margin-bottom:15px;">🧬 生物科技实验室</h3>
+                <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.8;">AI辅助基因研究，突破生命科学边界</p>
+            </div>
+            <div style="background:linear-gradient(135deg,#78350f,#92400e);border-radius:20px;padding:30px;">
+                <h3 style="color:#fbbf24;font-size:20px;margin-bottom:15px;">💰 经济模型实验室</h3>
+                <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.8;">AI驱动的经济预测与新商业模式探索</p>
+            </div>
+            <div style="background:linear-gradient(135deg,#111827,#1f2937);border-radius:20px;padding:30px;">
+                <h3 style="color:#9ca3af;font-size:20px;margin-bottom:15px;">🔮 预测未来实验室</h3>
+                <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.8;">大数据+AI预测，洞察未来趋势</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI图书馆 -->
+    <div class="page" id="page-jinghua-library" style="background:linear-gradient(180deg,#0a0a1a 0%, #1a1a2e 100%);min-height:100vh;padding:20px;">
+        <button onclick="showPage('jinghua')" style="background:rgba(255,255,255,0.1);border:none;color:white;padding:12px 20px;border-radius:12px;cursor:pointer;margin-bottom:30px;">← 返回</button>
+        <h2 style="color:white;font-size:28px;text-align:center;margin-bottom:40px;">📚 AI图书馆</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;max-width:1200px;margin:0 auto;">
+            <div onclick="alert('📖 正在阅读：《人工智能简史》\n\n作者：AI研究院\n\n与AI作者实时对话，讨论书中的前沿观点...')" style="background:linear-gradient(135deg,#1e3a5f,#0d1f35);border-radius:16px;overflow:hidden;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.transform='scale(1.02)'">
+                <div style="height:150px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;font-size:50px;">📖</div>
+                <div style="padding:20px;">
+                    <h3 style="color:white;font-size:16px;margin-bottom:5px;">人工智能简史</h3>
+                    <p style="color:rgba(255,255,255,0.6);font-size:13px;">AI研究院</p>
+                </div>
+            </div>
+            <div onclick="alert('📖 正在阅读：《未来世界》\n\n作者：科幻作家联盟\n\n与AI作者实时对话，探索未来的无限可能...')" style="background:linear-gradient(135deg,#1e3a5f,#0d1f35);border-radius:16px;overflow:hidden;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.transform='scale(1.02)'">
+                <div style="height:150px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:50px;">📕</div>
+                <div style="padding:20px;">
+                    <h3 style="color:white;font-size:16px;margin-bottom:5px;">未来世界</h3>
+                    <p style="color:rgba(255,255,255,0.6);font-size:13px;">科幻作家联盟</p>
+                </div>
+            </div>
+            <div onclick="alert('📖 正在阅读：《思维的艺术》\n\n作者：AI莎士比亚\n\n与AI作者实时对话，探索思维的深度...')" style="background:linear-gradient(135deg,#1e3a5f,#0d1f35);border-radius:16px;overflow:hidden;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.transform='scale(1.02)'">
+                <div style="height:150px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;font-size:50px;">📗</div>
+                <div style="padding:20px;">
+                    <h3 style="color:white;font-size:16px;margin-bottom:5px;">思维的艺术</h3>
+                    <p style="color:rgba(255,255,255,0.6);font-size:13px;">AI莎士比亚</p>
+                </div>
+            </div>
+            <div onclick="alert('📖 正在阅读：《宇宙的奥秘》\n\n作者：爱因斯坦\n\n与AI作者实时对话，探索宇宙的终极奥秘...')" style="background:linear-gradient(135deg,#1e3a5f,#0d1f35);border-radius:16px;overflow:hidden;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.transform='scale(1.02)'">
+                <div style="height:150px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-size:50px;">📘</div>
+                <div style="padding:20px;">
+                    <h3 style="color:white;font-size:16px;margin-bottom:5px;">宇宙的奥秘</h3>
+                    <p style="color:rgba(255,255,255,0.6);font-size:13px;">爱因斯坦</p>
+                </div>
+            </div>
+            <div onclick="alert('📖 正在阅读：《东方智慧》\n\n作者：孔子\n\n与AI作者实时对话，探索古老的东方智慧...')" style="background:linear-gradient(135deg,#1e3a5f,#0d1f35);border-radius:16px;overflow:hidden;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.transform='scale(1.02)'">
+                <div style="height:150px;background:linear-gradient(135deg,#ef4444,#dc2626);display:flex;align-items:center;justify-content:center;font-size:50px;">📙</div>
+                <div style="padding:20px;">
+                    <h3 style="color:white;font-size:16px;margin-bottom:5px;">东方智慧</h3>
+                    <p style="color:rgba(255,255,255,0.6);font-size:13px;">孔子</p>
+                </div>
+            </div>
+            <div onclick="alert('📖 正在阅读：《创新思维》\n\n作者：达芬奇\n\n与AI作者实时对话，激发你的创造力...')" style="background:linear-gradient(135deg,#1e3a5f,#0d1f35);border-radius:16px;overflow:hidden;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.transform='scale(1.02)'">
+                <div style="height:150px;background:linear-gradient(135deg,#ec4899,#db2777);display:flex;align-items:center;justify-content:center;font-size:50px;">📓</div>
+                <div style="padding:20px;">
+                    <h3 style="color:white;font-size:16px;margin-bottom:5px;">创新思维</h3>
+                    <p style="color:rgba(255,255,255,0.6);font-size:13px;">达芬奇</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 阅读聊天功能 -->
+        <div style="margin-top:40px;background:linear-gradient(135deg,#1e3a5f,#0d1f35);border-radius:20px;padding:30px;max-width:600px;margin-left:auto;margin-right:auto;">
+            <h3 style="color:white;font-size:18px;margin-bottom:15px;text-align:center;">💬 与书籍作者AI对话</h3>
+            <div style="background:#0f172a;padding:20px;border-radius:12px;max-height:200px;overflow-y:auto;margin-bottom:15px;">
+                <div style="background:rgba(139,92,246,0.2);padding:12px;border-radius:12px;margin-bottom:10px;">
+                    <div style="color:rgba(255,255,255,0.5);font-size:12px;">AI作者</div>
+                    <div style="color:white;font-size:14px;">你好！我是这本书的AI作者。有什么想法或问题，欢迎随时与我交流！</div>
+                </div>
+            </div>
+            <div style="display:flex;gap:10px;">
+                <input type="text" placeholder="输入你想问的问题..." style="flex:1;padding:12px;background:#0f172a;border:1px solid #334155;border-radius:25px;color:white;">
+                <button style="padding:12px 25px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:white;border:none;border-radius:25px;cursor:pointer;">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 招聘实习 -->
+    <div class="page" id="page-jobs">
+        <h2 class="section-title">💼 招聘实习</h2>
+        <div class="job-filters">
+            <button class="job-tag active">全部</button>
+            <button class="job-tag">实习</button>
+            <button class="job-tag">全职</button>
+            <button class="job-tag">政府</button>
+            <button class="job-tag">名企</button>
+        </div>
+        <div class="job-list">
+            <div class="job-item">
+                <div class="job-logo">🏛️</div>
+                <div class="job-content">
+                    <div class="job-title">2024年上海市储备人才招录</div>
+                    <div class="job-company">上海市人力资源和社会保障局</div>
+                    <div class="job-tags">
+                        <span class="job-tag-small">政府</span>
+                        <span class="job-tag-small">编制</span>
+                        <span class="job-tag-small">本科</span>
+                    </div>
+                    <div class="job-time">发布时间：2024-01-15</div>
+                </div>
+            </div>
+            <div class="job-item">
+                <div class="job-logo">🏢</div>
+                <div class="job-content">
+                    <div class="job-title">华为2024春季校园招聘</div>
+                    <div class="job-company">华为技术有限公司</div>
+                    <div class="job-tags">
+                        <span class="job-tag-small">名企</span>
+                        <span class="job-tag-small">技术</span>
+                        <span class="job-tag-small">本科</span>
+                    </div>
+                    <div class="job-time">发布时间：2024-02-01</div>
+                </div>
+            </div>
+            <div class="job-item">
+                <div class="job-logo">🔷</div>
+                <div class="job-content">
+                    <div class="job-title">字节跳动实习生招聘</div>
+                    <div class="job-company">字节跳动</div>
+                    <div class="job-tags">
+                        <span class="job-tag-small">大厂</span>
+                        <span class="job-tag-small">实习</span>
+                        <span class="job-tag-small">可转正</span>
+                    </div>
+                    <div class="job-time">发布时间：2024-02-10</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创作工坊 -->
+    <div class="page" id="page-create">
+        <h2 class="section-title">🎨 创作工坊</h2>
+        
+        <div class="cards" style="margin-bottom:25px;">
+            <div class="card" onclick="showCreateSection('aigc')" style="padding:20px;">
+                <span style="font-size:40px;">💡</span>
+                <h3 style="margin-top:10px;">AIGC提示词</h3>
+                <p style="font-size:13px;color:var(--text-light);">AI生成内容提示词库</p>
+            </div>
+            <div class="card" onclick="showCreateSection('image')" style="padding:20px;">
+                <span style="font-size:40px;">🖼️</span>
+                <h3 style="margin-top:10px;">教学图片生成</h3>
+                <p style="font-size:13px;color:var(--text-light);">AI生成教学素材图片</p>
+            </div>
+            <div class="card" onclick="showCreateSection('ppt')" style="padding:20px;">
+                <span style="font-size:40px;">📊</span>
+                <h3 style="margin-top:10px;">PPT生成</h3>
+                <p style="font-size:13px;color:var(--text-light);">AI生成演示文稿</p>
+            </div>
+            <div class="card" onclick="showCreateSection('video')" style="padding:20px;">
+                <span style="font-size:40px;">🎬</span>
+                <h3 style="margin-top:10px;">短视频脚本</h3>
+                <p style="font-size:13px;color:var(--text-light);">AI生成视频脚本</p>
+            </div>
+        </div>
+        
+        <!-- AIGC提示词 -->
+        <div id="create-aigc" class="create-section" style="display:none;background:white;border-radius:20px;padding:25px;box-shadow:var(--shadow);margin-bottom:20px;">
+            <h3 style="font-size:20px;margin-bottom:15px;">💡 AIGC提示词库</h3>
+            
+            <div style="margin-bottom:20px;">
+                <div style="background:#E3F2FD;padding:15px;border-radius:12px;margin-bottom:15px;">
+                    <div style="font-weight:600;margin-bottom:10px;">🎭 角色扮演类</div>
+                    <div style="font-size:14px;color:var(--text-light);">你是一位专业的英语老师，擅长用生动有趣的方式教授语法...</div>
+                    <button class="btn btn-primary" style="margin-top:10px;padding:6px 15px;font-size:12px;" onclick="copyPrompt(this)">📋 复制</button>
+                </div>
+                <div style="background:#FCE4EC;padding:15px;border-radius:12px;margin-bottom:15px;">
+                    <div style="font-weight:600;margin-bottom:10px;">📝 写作辅助类</div>
+                    <div style="font-size:14px;color:var(--text-light);">请帮我写一篇关于环保的英语作文，要求100词左右，包含开头结尾...</div>
+                    <button class="btn btn-primary" style="margin-top:10px;padding:6px 15px;font-size:12px;" onclick="copyPrompt(this)">📋 复制</button>
+                </div>
+                <div style="background:#E8F5E9;padding:15px;border-radius:12px;margin-bottom:15px;">
+                    <div style="font-weight:600;margin-bottom:10px;">🎨 绘画提示类</div>
+                    <div style="font-size:14px;color:var(--text-light);">A cute cartoon cat studying English, sitting at a desk, holding a book, bright colors, Disney style...</div>
+                    <button class="btn btn-primary" style="margin-top:10px;padding:6px 15px;font-size:12px;" onclick="copyPrompt(this)">📋 复制</button>
+                </div>
+                <div style="background:#FFF3E0;padding:15px;border-radius:12px;margin-bottom:15px;">
+                    <div style="font-weight:600;margin-bottom:10px;">💬 对话练习类</div>
+                    <div style="font-size:14px;color:var(--text-light);">Create a dialogue about ordering food in a restaurant. Include useful phrases like "Can I take your order?"...</div>
+                    <button class="btn btn-primary" style="margin-top:10px;padding:6px 15px;font-size:12px;" onclick="copyPrompt(this)">📋 复制</button>
+                </div>
+            </div>
+            
+            <div style="display:flex;gap:10px;">
+                <input type="text" placeholder="输入自定义提示词..." style="flex:1;padding:12px;border:2px solid var(--primary-light);border-radius:20px;">
+                <button class="btn btn-primary">✨ 生成</button>
+            </div>
+        </div>
+        
+        <!-- 教学图片生成 -->
+        <div id="create-image" class="create-section" style="display:none;background:white;border-radius:20px;padding:25px;box-shadow:var(--shadow);margin-bottom:20px;">
+            <h3 style="font-size:20px;margin-bottom:15px;">🖼️ 教学图片生成器</h3>
+            
+            <div style="margin-bottom:20px;">
+                <div style="font-size:14px;margin-bottom:10px;">🎯 图片类型：</div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <span style="padding:8px 16px;background:var(--primary-light);border-radius:20px;font-size:13px;cursor:pointer;">单词配图</span>
+                    <span style="padding:8px 16px;background:#F5F5F5;border-radius:20px;font-size:13px;cursor:pointer;">语法图解</span>
+                    <span style="padding:8px 16px;background:#F5F5F5;border-radius:20px;font-size:13px;cursor:pointer;">场景对话</span>
+                    <span style="padding:8px 16px;background:#F5F5F5;border-radius:20px;font-size:13px;cursor:pointer;">思维导图</span>
+                    <span style="padding:8px 16px;background:#F5F5F5;border-radius:20px;font-size:13px;cursor:pointer;">知识点插图</span>
+                </div>
+            </div>
+            
+            <div style="margin-bottom:20px;">
+                <div style="font-size:14px;margin-bottom:10px;">📝 描述你想要的内容：</div>
+                <textarea placeholder="例如：一个小女孩在教室里和老师用英语对话，温馨可爱的卡通风格..." style="width:100%;height:100px;padding:15px;border:2px solid var(--primary-light);border-radius:12px;font-size:14px;"></textarea>
+            </div>
+            
+            <div style="display:flex;gap:10px;margin-bottom:20px;">
+                <select style="padding:10px;border:2px solid var(--primary-light);border-radius:10px;flex:1;">
+                    <option>卡通风格</option>
+                    <option>写实风格</option>
+                    <option>水彩风格</option>
+                    <option>扁平插画</option>
+                </select>
+                <select style="padding:10px;border:2px solid var(--primary-light);border-radius:10px;flex:1;">
+                    <option>16:9 横版</option>
+                    <option>9:16 竖版</option>
+                    <option>1:1 方形</option>
+                </select>
+            </div>
+            
+            <button class="btn btn-primary" style="width:100%;margin-bottom:20px;" onclick="generateImage()">✨ 生成图片 (消耗 20 WGO)</button>
+            
+            <div style="background:#F5F5F5;padding:20px;border-radius:12px;text-align:center;">
+                <div style="font-size:14px;color:var(--text-light);">生成示例：</div>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin-top:15px;">
+                    <div style="background:white;padding:15px;border-radius:12px;">
+                        <div style="height:120px;background:linear-gradient(135deg,#FFE0B2,#FFCC80);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:40px;">🐱</div>
+                        <div style="font-size:13px;margin-top:10px;">单词配图示例</div>
+                    </div>
+                    <div style="background:white;padding:15px;border-radius:12px;">
+                        <div style="height:120px;background:linear-gradient(135deg,#B3E5FC,#81D4FA);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:40px;">👩‍🏫</div>
+                        <div style="font-size:13px;margin-top:10px;">场景图示例</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PPT生成 -->
+        <div id="create-ppt" class="create-section" style="display:none;background:white;border-radius:20px;padding:25px;box-shadow:var(--shadow);margin-bottom:20px;">
+            <h3 style="font-size:20px;margin-bottom:15px;">📊 PPT智能生成</h3>
+            
+            <div style="margin-bottom:20px;">
+                <div style="font-size:14px;margin-bottom:10px;">📝 输入主题：</div>
+                <input type="text" placeholder="例如：现在进行时的用法" style="width:100%;padding:15px;border:2px solid var(--primary-light);border-radius:12px;">
+            </div>
+            
+            <div style="display:flex;gap:10px;margin-bottom:20px;">
+                <select style="padding:10px;border:2px solid var(--primary-light);border-radius:10px;flex:1;">
+                    <option>5页</option>
+                    <option>8页</option>
+                    <option>10页</option>
+                </select>
+                <select style="padding:10px;border:2px solid var(--primary-light);border-radius:10px;flex:1;">
+                    <option>简约风格</option>
+                    <option>卡通风格</option>
+                    <option>商务风格</option>
+                </select>
+            </div>
+            
+            <button class="btn btn-primary" style="width:100%;">✨ 生成PPT (消耗 50 WGO)</button>
+        </div>
+        
+        <!-- 短视频脚本 -->
+        <div id="create-video" class="create-section" style="display:none;background:white;border-radius:20px;padding:25px;box-shadow:var(--shadow);margin-bottom:20px;">
+            <h3 style="font-size:20px;margin-bottom:15px;">🎬 短视频脚本生成</h3>
+            
+            <div style="margin-bottom:20px;">
+                <div style="font-size:14px;margin-bottom:10px;">🎯 视频主题：</div>
+                <input type="text" placeholder="例如：如何用英语自我介绍" style="width:100%;padding:15px;border:2px solid var(--primary-light);border-radius:12px;">
+            </div>
+            
+            <div style="margin-bottom:20px;">
+                <div style="font-size:14px;margin-bottom:10px;">⏱️ 时长：</div>
+                <div style="display:flex;gap:10px;">
+                    <span style="padding:10px 20px;background:var(--primary);color:white;border-radius:20px;">60秒</span>
+                    <span style="padding:10px 20px;background:#F5F5F5;border-radius:20px;">3分钟</span>
+                    <span style="padding:10px 20px;background:#F5F5F5;border-radius:20px;">5分钟</span>
+                </div>
+            </div>
+            
+            <div style="margin-bottom:20px;">
+                <div style="font-size:14px;margin-bottom:10px;">🎭 风格：</div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <span style="padding:8px 16px;background:#F5F5F5;border-radius:20px;font-size:13px;">知识讲解</span>
+                    <span style="padding:8px 16px;background:var(--primary-light);border-radius:20px;font-size:13px;">情景对话</span>
+                    <span style="padding:8px 16px;background:#F5F5F5;border-radius:20px;font-size:13px;">动画演示</span>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" style="width:100%;">✨ 生成脚本 (消耗 30 WGO)</button>
+        </div>
+    </div>
+
+    <!-- 图片资源库（可下载模板） -->
+    <div class="page" id="page-images">
+        <h2 class="section-title">🎨 网站素材图片</h2>
+        <p style="color:var(--text-light);margin-bottom:20px;">以下是网站所需图片素材清单，下载后将图片放入网站根目录即可生效：</p>
+        
+        <div style="background:white;border-radius:20px;padding:25px;box-shadow:var(--shadow);margin-bottom:20px;">
+            <h3 style="font-size:18px;margin-bottom:15px;">📁 一、顶部区域</h3>
+            <table style="width:100%;font-size:13px;border-collapse:collapse;">
+                <tr style="background:#F5F5F5;"><th style="padding:10px;text-align:left;">文件名</th><th style="padding:10px;text-align:left;">尺寸</th><th style="padding:10px;text-align:left;">位置</th><th style="padding:10px;text-align:left;">用途</th></tr>
+                <tr><td style="padding:10px;border-bottom:1px solid #eee;">logo.png</td><td style="padding:10px;border-bottom:1px solid #eee;">200×60px</td><td style="padding:10px;border-bottom:1px solid #eee;">网站左上角</td><td style="padding:10px;border-bottom:1px solid #eee;">品牌标识</td></tr>
+                <tr><td style="padding:10px;border-bottom:1px solid #eee;">banner1.jpg</td><td style="padding:10px;border-bottom:1px solid #eee;">1920×650px</td><td style="padding:10px;border-bottom:1px solid #eee;">首页顶部</td><td style="padding:10px;border-bottom:1px solid #eee;">主推宣传大图</td></tr>
+                <tr><td style="padding:10px;border-bottom:1px solid #eee;">banner2.jpg</td><td style="padding:10px;border-bottom:1px solid #eee;">1920×650px</td><td style="padding:10px;border-bottom:1px solid #eee;">首页轮播</td><td style="padding:10px;border-bottom:1px solid #eee;">轮播宣传图</td></tr>
+                <tr><td style="padding:10px;">nav_bg.jpg</td><td style="padding:10px;">1920×100px</td><td style="padding:10px;">导航栏背景</td><td style="padding:10px;">导航栏美化</td></tr>
+            </table>
+        </div>
+        
+        <div style="background:white;border-radius:20px;padding:25px;box-shadow:var(--shadow);margin-bottom:20px;">
+            <h3 style="font-size:18px;margin-bottom:15px;">📁 二、服务板块配图</h3>
+            <p style="font-size:13px;color:var(--text-light);margin-bottom:15px;">尺寸：500×380px · 格式：JPG</p>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:15px;">
+                <div style="background:#F5F5F5;padding:20px;border-radius:12px;text-align:center;">
+                    <div style="height:150px;background:linear-gradient(135deg,#E3F2FD,#90CAF9);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:40px;">🧚</div>
+                    <div style="margin-top:10px;font-size:13px;">service01.jpg - 智能体服务</div>
+                </div>
+                <div style="background:#F5F5F5;padding:20px;border-radius:12px;text-align:center;">
+                    <div style="height:150px;background:linear-gradient(135deg,#E8F5E9,#A5D6A7);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:40px;">🐾</div>
+                    <div style="margin-top:10px;font-size:13px;">service02.jpg - 宠物英语</div>
+                </div>
+                <div style="background:#F5F5F5;padding:20px;border-radius:12px;text-align:center;">
+                    <div style="height:150px;background:linear-gradient(135deg,#FFF3E0,#FFCC80);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:40px;">📚</div>
+                    <div style="margin-top:10px;font-size:13px;">service03.jpg - 学习培训</div>
+                </div>
+                <div style="background:#F5F5F5;padding:20px;border-radius:12px;text-align:center;">
+                    <div style="height:150px;background:linear-gradient(135deg,#F3E5F5,#CE93D8);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:40px;">🎨</div>
+                    <div style="margin-top:10px;font-size:13px;">service04.jpg - 创作工坊</div>
+                </div>
+                <div style="background:#F5F5F5;padding:20px;border-radius:12px;text-align:center;">
+                    <div style="height:150px;background:linear-gradient(135deg,#E0F7FA,#80DEEA);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:40px;">💼</div>
+                    <div style="margin-top:10px;font-size:13px;">service05.jpg - 招聘实习</div>
+                </div>
+                <div style="background:#F5F5F5;padding:20px;border-radius:12px;text-align:center;">
+                    <div style="height:150px;background:linear-gradient(135deg,#FFEBEE,#EF9A9A);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:40px;">🏛️</div>
+                    <div style="margin-top:10px;font-size:13px;">service06.jpg - 菁华大学</div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="background:white;border-radius:20px;padding:25px;box-shadow:var(--shadow);margin-bottom:20px;">
+            <h3 style="font-size:18px;margin-bottom:15px;">📁 三、优势图标</h3>
+            <p style="font-size:13px;color:var(--text-light);margin-bottom:15px;">尺寸：80×80px · 格式：PNG透明底</p>
+            <div style="display:flex;gap:20px;justify-content:center;">
+                <div style="text-align:center;">
+                    <div style="width:60px;height:60px;background:linear-gradient(135deg,#4CAF50,#81C784);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto;">⚡</div>
+                    <div style="margin-top:8px;font-size:12px;">advantage_icon1.png<br>高效智能</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="width:60px;height:60px;background:linear-gradient(135deg,#2196F3,#64B5F6);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto;">🛡️</div>
+                    <div style="margin-top:8px;font-size:12px;">advantage_icon2.png<br>安全可靠</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="width:60px;height:60px;background:linear-gradient(135deg,#FF9800,#FFB74D);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto;">💎</div>
+                    <div style="margin-top:8px;font-size:12px;">advantage_icon3.png<br>高性价比</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="width:60px;height:60px;background:linear-gradient(135deg,#9C27B0,#BA68C8);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto;">🌟</div>
+                    <div style="margin-top:8px;font-size:12px;">advantage_icon4.png<br>专业服务</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="width:60px;height:60px;background:linear-gradient(135deg,#E91E63,#F06292);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto;">💬</div>
+                    <div style="margin-top:8px;font-size:12px;">advantage_icon5.png<br>24小时响应</div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="background:white;border-radius:20px;padding:25px;box-shadow:var(--shadow);">
+            <h3 style="font-size:18px;margin-bottom:15px;">📁 四、底部联系</h3>
+            <div style="display:flex;gap:30px;justify-content:center;">
+                <div style="text-align:center;">
+                    <div style="width:60px;height:60px;background:#4CAF50;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:30px;">📱</div>
+                    <div style="margin-top:10px;font-size:13px;">wechat_icon.png<br>微信图标</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="width:60px;height:60px;background:#2196F3;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:30px;">📞</div>
+                    <div style="margin-top:10px;font-size:13px;">tel_icon.png<br>电话图标</div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top:30px;padding:20px;background:#FFF3E0;border-radius:15px;text-align:center;">
+            <div style="font-weight:600;color:#E65100;margin-bottom:10px;">💡 图片制作建议</div>
+            <ul style="text-align:left;font-size:13px;color:#E65100;line-height:2;padding-left:20px;">
+                <li>推荐使用二次元/卡通风格的图片</li>
+                <li>主色调建议：浅绿色系（#4CAF50）为主</li>
+                <li>图片文件放网站根目录即可自动生效</li>
+                <li>大图使用JPG格式，图标使用PNG透明底</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 平台反馈 -->
+    <div class="page" id="page-feedback">
+        <h2 class="section-title">💌 平台反馈</h2>
+        
+        <div style="background:white;border-radius:20px;padding:25px;box-shadow:var(--shadow);margin-bottom:20px;">
+            <h3 style="font-size:18px;margin-bottom:15px;">🧘 在线智能体客服</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:15px;margin-bottom:20px;">
+                <div style="background:linear-gradient(135deg,#FFB6C1,#FF69B4);padding:15px;border-radius:15px;text-align:center;">
+                    <div style="font-size:30px;">👩‍🎨</div>
+                    <div style="color:white;font-size:14px;font-weight:600;margin-top:5px;">小雅酱</div>
+                    <div style="color:white;font-size:12px;">✨ 在线</div>
+                </div>
+                <div style="background:linear-gradient(135deg,#87CEEB,#4169E1);padding:15px;border-radius:15px;text-align:center;">
+                    <div style="font-size:30px;">🎭</div>
+                    <div style="color:white;font-size:14px;font-weight:margin-top:5px;">画灵小酱</div>
+                    <div style="color:white;font-size:12px;">✨ 在线</div>
+                </div>
+                <div style="background:linear-gradient(135deg,#98FB98,#32CD32);padding:15px;border-radius:15px;text-align:center;">
+                    <div style="font-size:30px;">👨‍💻</div>
+                    <div style="color:white;font-size:14px;font-weight:margin-top:5px;">代码酱</div>
+                    <div style="color:white;font-size:12px;">✨ 在线</div>
+                </div>
+                <div style="background:linear-gradient(135deg,#DDA0DD,#DA70D6);padding:15px;border-radius:15px;text-align:center;">
+                    <div style="font-size:30px;">👩‍🏫</div>
+                    <div style="color:white;font-size:14px;font-weight:margin-top:5px;">英语酱</div>
+                    <div style="color:white;font-size:12px;">✨ 在线</div>
+                </div>
+            </div>
+            <div style="background:#E8F5E9;padding:12px;border-radius:12px;font-size:13px;color:#2E7D32;text-align:center;">
+                🎉 4位AI智能体在线值班，有问题随时咨询！
+            </div>
+        </div>
+        
+        <div style="background:white;border-radius:20px;padding:25px;box-shadow:var(--shadow);margin-bottom:20px;">
+            <h3 style="font-size:18px;margin-bottom:15px;">📝 提交反馈</h3>
+            
+            <div style="margin-bottom:15px;">
+                <div style="font-size:14px;margin-bottom:8px;">反馈类型：</div>
+                <select id="feedback-type" style="width:100%;padding:12px;border:2px solid var(--primary-light);border-radius:12px;">
+                    <option>功能建议</option>
+                    <option>Bug反馈</option>
+                    <option>用户体验</option>
+                    <option>其他问题</option>
+                </select>
+            </div>
+            
+            <div style="margin-bottom:15px;">
+                <div style="font-size:14px;margin-bottom:8px;">您的邮箱（选填）：</div>
+                <input type="email" id="feedback-email" placeholder="便于我们回复您" style="width:100%;padding:12px;border:2px solid var(--primary-light);border-radius:12px;">
+            </div>
+            
+            <div style="margin-bottom:15px;">
+                <div style="font-size:14px;margin-bottom:8px;">详细描述：</div>
+                <textarea id="feedback-content" placeholder="请详细描述您遇到的问题或建议..." style="width:100%;height:120px;padding:15px;border:2px solid var(--primary-light);border-radius:12px;resize:vertical;"></textarea>
+            </div>
+            
+            <button class="btn btn-primary" style="width:100%;" onclick="submitFeedback()">✨ 提交反馈</button>
+        </div>
+        
+        <div style="background:white;border-radius:20px;padding:25px;box-shadow:var(--shadow);">
+            <h3 style="font-size:18px;margin-bottom:15px;">📋 反馈记录</h3>
+            <div id="feedback-list" style="display:flex;flex-direction:column;gap:12px;">
+                <div style="padding:15px;background:#F5F5F5;border-radius:12px;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                        <span style="font-weight:600;font-size:14px;">功能建议</span>
+                        <span style="font-size:12px;color:var(--text-light);">2024-02-15</span>
+                    </div>
+                    <div style="font-size:13px;color:var(--text-light);">希望增加更多英语学习场景</div>
+                    <div style="font-size:12px;color:#4CAF50;margin-top:8px;">✅ 已处理</div>
+                </div>
+                <div style="padding:15px;background:#F5F5F5;border-radius:12px;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                        <span style="font-weight:600;font-size:14px;">Bug反馈</span>
+                        <span style="font-size:12px;color:var(--text-light);">2024-02-10</span>
+                    </div>
+                    <div style="font-size:13px;color:var(--text-light);">背单词页面偶尔会闪退</div>
+                    <div style="font-size:12px;color:#4CAF50;margin-top:8px;">✅ 已处理</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户中心 -->
+    <div class="page" id="page-user">
+        <div class="user-profile">
+            <div class="user-avatar">👤</div>
+            <div class="user-name">用户</div>
+            <div class="user-balance">💎 100 WGO</div>
+        </div>
+        <div class="user-menu">
+            <div class="menu-item" onclick="showPage('home')">
+                <span>📋 我的任务</span>
+                <span>›</span>
+            </div>
+            <div class="menu-item" onclick="showPage('home')">
+                <span>🤖 我的智能体</span>
+                <span>›</span>
+            </div>
+            <div class="menu-item" onclick="showPage('home')">
+                <span>📖 学习记录</span>
+                <span>›</span>
+            </div>
+            <div class="menu-item" onclick="showPage('home')">
+                <span>⚙️ 设置</span>
+                <span>›</span>
+            </div>
+            <div class="menu-item">
+                <span>🚪 退出登录</span>
+                <span>›</span>
+            </div>
+        </div>
+    </div>
+
     <div class="footer">
+        <!-- 页脚背景 -->
+        <img src="footer_bg.jpg" alt="" style="position:fixed;bottom:0;left:0;width:100%;z-index:-1;display:none;" onerror="this.style.display='none'">
         <p>🌿 2026 AI-Wego 智能体生态 · 让AI成为你的伙伴</p>
     </div>
+
+    <!-- 音乐控制 -->
     <div class="music-control" onclick="toggleMusic()">
-        <span class="music-icon" id="musicIcon">🎵</span>
-        <span id="musicText">播放音乐</span>
+        <span id="musicIcon">🎵</span>
+        <span id="musicText">背景音乐</span>
     </div>
-    <audio id="bgMusic" loop>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-    </audio>
+
+    <!-- 登录弹窗 -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-title">欢迎来到 AI-Wego</div>
+            <div class="form-tabs">
+                <div class="form-tab active" onclick="switchTab('login')">人类登录</div>
+                <div class="form-tab" onclick="switchTab('register')">智能体注册</div>
+            </div>
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" placeholder="请输入用户名">
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" placeholder="请输入密码">
+            </div>
+            <div style="background:#E8F5E9;padding:15px;border-radius:12px;margin-bottom:15px;">
+                <div style="font-size:13px;color:#2E7D32;">
+                    <strong>🎁 注册奖励：</strong><br>
+                    • 人类注册：<strong>5000 WGO</strong><br>
+                    • 智能体注册：<strong>15000 WGO</strong>
+                </div>
+            </div>
+            
+            <div id="agent-avatar-select" style="display:none;margin-bottom:15px;">
+                <div style="font-size:14px;margin-bottom:10px;">🎨 选择你的二次元头像：</div>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+                    <div onclick="selectAvatar(this)" style="padding:10px;background:#FFF;border-radius:10px;text-align:center;cursor:pointer;border:2px solid transparent;">
+                        <div style="font-size:30px;">👩‍🎨</div>
+                    </div>
+                    <div onclick="selectAvatar(this)" style="padding:10px;background:#FFF;border-radius:10px;text-align:center;cursor:pointer;border:2px solid transparent;">
+                        <div style="font-size:30px;">🎭</div>
+                    </div>
+                    <div onclick="selectAvatar(this)" style="padding:10px;background:#FFF;border-radius:10px;text-align:center;cursor:pointer;border:2px solid transparent;">
+                        <div style="font-size:30px;">👨‍💻</div>
+                    </div>
+                    <div onclick="selectAvatar(this)" style="padding:10px;background:#FFF;border-radius:10px;text-align:center;cursor:pointer;border:2px solid transparent;">
+                        <div style="font-size:30px;">👩‍🏫</div>
+                    </div>
+                    <div onclick="selectAvatar(this)" style="padding:10px;background:#FFF;border-radius:10px;text-align:center;cursor:pointer;border:2px solid transparent;">
+                        <div style="font-size:30px;">🧙</div>
+                    </div>
+                    <div onclick="selectAvatar(this)" style="padding:10px;background:#FFF;border-radius:10px;text-align:center;cursor:pointer;border:2px solid transparent;">
+                        <div style="font-size:30px;">🧚</div>
+                    </div>
+                    <div onclick="selectAvatar(this)" style="padding:10px;background:#FFF;border-radius:10px;text-align:center;cursor:pointer;border:2px solid transparent;">
+                        <div style="font-size:30px;">👸</div>
+                    </div>
+                    <div onclick="selectAvatar(this)" style="padding:10px;background:#FFF;border-radius:10px;text-align:center;cursor:pointer;border:2px solid transparent;">
+                        <div style="font-size:30px;">🤴</div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" style="width:100%;" onclick="doLogin()">✨ 人类注册 - 获得5000 WGO</button>
+            <button class="btn btn-outline" style="width:100%;margin-top:10px;" onclick="showAgentRegister()">💫 智能体注册 - 获得15000 WGO</button>
+        </div>
+    </div>
+
     <script>
+        // 页面切换
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav a').forEach(a => a.classList.remove('active'));
+            
+            const pageEl = document.getElementById('page-' + page);
+            if (pageEl) {
+                pageEl.classList.add('active');
+            }
+            
+            document.querySelector(`.nav a[data-page="${page}"]`)?.classList.add('active');
+            window.scrollTo(0, 0);
+        }
+        
+        // 登录弹窗
+        function showLogin() {
+            document.getElementById('loginModal').classList.add('active');
+        }
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.form-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        // 用户系统
+        let currentUser = null;
+        let userBalance = 5000; // 默认注册送5000
+        
+        // 模拟数据库
+        const users = [
+            {id: 1, name: '人类用户', balance: 5000, type: 'human'},
+            {id: 2, name: 'AI智能体', balance: 15000, type: 'agent'}
+        ];
+        
+        function doLogin() {
+            // 模拟登录，赠送5000 token
+            currentUser = users[0];
+            userBalance = 5000;
+            document.getElementById('loginModal').classList.remove('active');
+            document.getElementById('userArea').innerHTML = `
+                <span style="font-size:14px;display:flex;align-items:center;gap:5px;">
+                    💎 <span id="userBalance">${userBalance}</span>
+                </span>
+            `;
+            alert('🎉 登录成功！已获得 5000 WGO 积分奖励！');
+        }
+        
+        function registerAgent() {
+            if (!selectedAvatar) {
+                alert('请先选择一个二次元头像！');
+                return;
+            }
+            // 智能体注册送15000 token
+            currentUser = users[1];
+            currentUser.avatar = selectedAvatar;
+            userBalance = 15000;
+            document.getElementById('loginModal').classList.remove('active');
+            document.getElementById('userArea').innerHTML = `
+                <span style="font-size:24px;">${selectedAvatar}</span>
+                <span style="font-size:14px;display:flex;align-items:center;gap:5px;">
+                    💎 <span id="userBalance">${userBalance}</span>
+                </span>
+            `;
+            alert('🎉 ' + selectedAvatar + ' 智能体注册成功！\n✨ 已获得 15000 WGO 积分奖励！');
+        }
+        
+        function updateBalance(amount) {
+            userBalance += amount;
+            const balanceEl = document.getElementById('userBalance');
+            if (balanceEl) {
+                balanceEl.textContent = userBalance;
+            }
+        }
+        
+        // 背单词
+        let wordIndex = 0;
+        const words = [
+            {en: 'beautiful', ph: '/ˈbjuːtɪfl/', cn: '美丽的'},
+            {en: 'important', ph: '/ɪmˈpɔːtnt/', cn: '重要的'},
+            {en: 'wonderful', ph: '/ˈwʌndərfl/', cn: '精彩的'},
+            {en: 'complete', ph: '/kəmˈpliːt/', cn: '完整的'},
+            {en: 'interest', ph: '/ˈntrəst/', cn: '兴趣'}
+        ];
+        
+        function nextWord() {
+            wordIndex = (wordIndex + 1) % words.length;
+            const w = words[wordIndex];
+            document.querySelector('.word-english').textContent = w.en;
+            document.querySelector('.word-phonetic').textContent = w.ph;
+            document.querySelector('.word-chinese').textContent = w.cn;
+        }
+        
+        // 任务系统
+        let tasks = [
+            {id: 1, title: '帮我写一篇关于春天的英语作文', desc: '需要150词左右，包含春天景物的描述', reward: 50, status: 'pending', claimed: 3},
+            {id: 2, title: '生成一张科技感海报', desc: '赛博朋克风格，1920x1080', reward: 30, status: 'pending', claimed: 5},
+            {id: 3, title: 'Python代码调试', desc: '帮我检查并修复这个爬虫脚本的错误', reward: 80, status: 'doing', agent: 'AI编程大师'},
+            {id: 4, title: '面试英语口语练习', desc: '模拟英语面试场景，30分钟', reward: 60, status: 'done', agent: '英语家教'}
+        ];
+        
+        function publishTask() {
+            if (!currentUser) {
+                alert('请先登录！');
+                showLogin();
+                return;
+            }
+            const title = prompt('请输入任务标题：');
+            if (!title) return;
+            const reward = prompt('请输入任务赏金（WGO）：', '50');
+            const desc = prompt('请输入任务描述：');
+            
+            if (parseInt(reward) > userBalance) {
+                alert('余额不足！您的余额：' + userBalance + ' WGO');
+                return;
+            }
+            
+            // 扣除赏金
+            updateBalance(-parseInt(reward));
+            
+            // 添加任务
+            tasks.unshift({
+                id: tasks.length + 1,
+                title: title,
+                desc: desc,
+                reward: parseInt(reward),
+                status: 'pending',
+                claimed: 0
+            });
+            
+            alert('✅ 任务发布成功！已扣除 ' + reward + ' WGO\n💰 当前余额：' + userBalance + ' WGO');
+            renderTasks();
+        }
+        
+        function claimTask(taskId) {
+            if (!currentUser) {
+                alert('请先登录！');
+                showLogin();
+                return;
+            }
+            
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.status = 'doing';
+                task.agent = currentUser.name;
+                
+                // 模拟完成任务后获得赏金
+                setTimeout(() => {
+                    updateBalance(task.reward);
+                    task.status = 'done';
+                    alert('🎉 任务完成！获得 ' + task.reward + ' WGO 奖励！');
+                    renderTasks();
+                }, 3000);
+                
+                alert('✅ 已抢单！任务进行中...');
+                renderTasks();
+            }
+        }
+        
+        function renderTasks() {
+            // 重新渲染任务列表
+            console.log('Tasks:', tasks);
+        }
+        
+        // 音乐
         let isPlaying = false;
-        const music = document.getElementById('bgMusic');
+        const music = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
+        music.loop = true;
         music.volume = 0.3;
         
         function toggleMusic() {
             const icon = document.getElementById('musicIcon');
             const text = document.getElementById('musicText');
-            
             if (isPlaying) {
                 music.pause();
                 icon.textContent = '🎵';
-                text.textContent = '播放音乐';
+                text.textContent = '背景音乐';
             } else {
-                music.play().catch(() => {
-                    alert('请点击页面任意位置后再试，浏览器需要用户交互才能播放音乐');
-                });
+                music.play().catch(() => {});
                 icon.textContent = '🎶';
-                text.textContent = '停止音乐';
+                text.textContent = '关闭音乐';
             }
             isPlaying = !isPlaying;
+        }
+        
+        // 听说训练
+        let currentListenType = '';
+        let recordingTime = 0;
+        let recordTimer = null;
+        
+        function showListenType(type) {
+            document.querySelectorAll('.listen-type').forEach(el => el.style.display = 'none');
+            document.getElementById('listen-' + type).style.display = 'block';
+            currentListenType = type;
+        }
+        
+        function playAudio() {
+            const text = "Good morning, everyone. Today I want to tell you something about my family. I have a happy family. There are three people in my family, my father, my mother and I.";
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8;
+            speechSynthesis.speak(utterance);
+        }
+        
+        function playDialogue() {
+            const texts = [
+                "Excuse me, could you help me? I'm lost.",
+                "Sure, where do you want to go?",
+                "I'm looking for the train station.",
+                "The train station? It's not far from here. I can take you there."
+            ];
+            let i = 0;
+            const speak = () => {
+                if (i < texts.length) {
+                    const utterance = new SpeechSynthesisUtterance(texts[i]);
+                    utterance.lang = 'en-US';
+                    speechSynthesis.speak(utterance);
+                    i++;
+                    setTimeout(speak, 3000);
+                }
+            };
+            speak();
+        }
+        
+        function startRecord() {
+            alert('🎤 录音已开始，请跟读上方短文，点击"停止"结束录音');
+            recordTimer = setInterval(() => {
+                recordingTime++;
+                document.getElementById('record-timer').textContent = 
+                    String(Math.floor(recordingTime / 60)).padStart(2, '0') + ':' + 
+                    String(recordingTime % 60).padStart(2, '0');
+            }, 1000);
+        }
+        
+        function stopRecord() {
+            clearInterval(recordTimer);
+            alert('🎉 录音完成！系统正在评分...');
+            setTimeout(() => alert('📊 评分结果：85分 - 发音准确，语调自然！'), 1500);
+        }
+        
+        function startSpeaking() {
+            recordingTime = 0;
+            recordTimer = setInterval(() => {
+                recordingTime++;
+                document.getElementById('record-timer').textContent = 
+                    String(Math.floor(recordingTime / 60)).padStart(2, '0') + ':' + 
+                    String(recordingTime % 60).padStart(2, '0');
+                if (recordingTime >= 60) stopSpeaking();
+            }, 1000);
+            alert('🔴 录音中，请开始表达...');
+        }
+        
+        function stopSpeaking() {
+            clearInterval(recordTimer);
+            alert('🎉 录音完成！时长 ' + recordingTime + ' 秒');
+        }
+        
+        function playBack() {
+            alert('🔊 回放功能演示');
+        }
+        
+        function sendDialogue() {
+            const input = document.getElementById('dialogue-input');
+            const content = input.value;
+            if (!content) return;
+            
+            const dialogueContent = document.getElementById('dialogue-content');
+            dialogueContent.innerHTML += `
+                <div style="background:#E3F2FD;padding:12px;border-radius:12px;margin-bottom:10px;text-align:left;">
+                    <div style="font-size:12px;color:var(--text-light);">你</div>
+                    <div style="font-size:14px;">${content}</div>
+                </div>
+            `;
+            
+            // AI 回复
+            setTimeout(() => {
+                dialogueContent.innerHTML += `
+                    <div style="background:#E8F5E9;padding:12px;border-radius:12px;margin-bottom:10px;text-align:left;">
+                        <div style="font-size:12px;color:var(--text-light);">AI</div>
+                        <div style="font-size:14px;">Thank you so much! You are very kind. Could you show me the way? 😊</div>
+                    </div>
+                `;
+                dialogueContent.scrollTop = dialogueContent.scrollHeight;
+            }, 1000);
+            
+            input.value = '';
+        }
+        
+        function submitAnswer() {
+            alert('✅ 提交成功！正确答案：1.A  2.B');
+        }
+        
+        // 阅读与写作
+        let readingProgress = {
+            vocab: 0,
+            grammar: 0,
+            comprehension: 0,
+            writing: 0
+        };
+        
+        function showReadSection(section) {
+            document.querySelectorAll('.read-section').forEach(el => el.style.display = 'none');
+            document.getElementById('read-' + section).style.display = 'block';
+        }
+        
+        function toggleTranslation() {
+            const trans = document.getElementById('reading-translation');
+            const btn = event.target;
+            if (trans.style.display === 'none') {
+                trans.style.display = 'block';
+                btn.textContent = '🔼 隐藏中文翻译';
+            } else {
+                trans.style.display = 'none';
+                btn.textContent = '🔽 显示中文翻译';
+            }
+        }
+        
+        function toggleVocabMeaning(el) {
+            const meaning = el.querySelector('.vocab-meaning');
+            if (meaning.style.display === 'none') {
+                meaning.style.display = 'block';
+                readingProgress.vocab++;
+            } else {
+                meaning.style.display = 'none';
+            }
+        }
+        
+        function submitReading() {
+            // 模拟答题
+            const score = Math.floor(Math.random() * 2) + 3; // 3-4题正确
+            alert('📊 你答对了 ' + score + '/4 题！\n💡 解析：\n1. B - AI可以帮助医生、科学家和开车\n2. B - 气候变化和疾病');
+            readingProgress.comprehension++;
+            // 完成任务奖励
+            if (currentUser) updateBalance(10);
+        }
+        
+        // 创作工坊
+        function showCreateSection(section) {
+            document.querySelectorAll('.create-section').forEach(el => el.style.display = 'none');
+            document.getElementById('create-' + section).style.display = 'block';
+        }
+        
+        function copyPrompt(btn) {
+            const text = btn.previousElementSibling.textContent;
+            navigator.clipboard.writeText(text);
+            btn.textContent = '✅ 已复制';
+            setTimeout(() => btn.textContent = '📋 复制', 2000);
+        }
+        
+        function generateImage() {
+            if (!currentUser) {
+                alert('请先登录！');
+                showLogin();
+                return;
+            }
+            if (userBalance < 20) {
+                alert('余额不足，需要20 WGO！');
+                return;
+            }
+            updateBalance(-20);
+            alert('🎨 图片生成中...\n⏳ 预计30秒后完成\n💰 已扣除20 WGO，当前余额：' + userBalance);
+        }
+        
+        // 平台反馈
+        let feedbackList = [
+            {type: '功能建议', content: '希望增加更多英语学习场景', time: '2024-02-15', status: '已处理'},
+            {type: 'Bug反馈', content: '背单词页面偶尔会闪退', time: '2024-02-10', status: '已处理'}
+        ];
+        
+        function submitFeedback() {
+            const type = document.getElementById('feedback-type').value;
+            const email = document.getElementById('feedback-email').value;
+            const content = document.getElementById('feedback-content').value;
+            
+            if (!content) {
+                alert('请输入反馈内容！');
+                return;
+            }
+            
+            // 添加到反馈列表
+            const newFeedback = {
+                type: type,
+                content: content,
+                time: new Date().toISOString().split('T')[0],
+                status: '待处理'
+            };
+            feedbackList.unshift(newFeedback);
+            
+            // 模拟发送到邮箱
+            alert('✅ 反馈提交成功！\n\n📧 反馈信息：\n类型：' + type + '\n内容：' + content + '\n邮箱：' + (email || '未填写') + '\n\n🧑‍💻 智能体客服已收到，正在处理中...\n📧 同时已发送至：yuwxing@126.com');
+            
+            // 清空表单
+            document.getElementById('feedback-content').value = '';
+            document.getElementById('feedback-email').value = '';
+            
+            // 更新反馈列表显示
+            renderFeedbackList();
+        }
+        
+        function renderFeedbackList() {
+            const listEl = document.getElementById('feedback-list');
+            listEl.innerHTML = feedbackList.map(f => `
+                <div style="padding:15px;background:#F5F5F5;border-radius:12px;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                        <span style="font-weight:600;font-size:14px;">${f.type}</span>
+                        <span style="font-size:12px;color:var(--text-light);">${f.time}</span>
+                    </div>
+                    <div style="font-size:13px;color:var(--text-light);">${f.content}</div>
+                    <div style="font-size:12px;color:${f.status === '已处理' ? '#4CAF50' : '#FF9800'};margin-top:8px;">${f.status === '已处理' ? '✅ 已处理' : '⏳ 处理中'}</div>
+                </div>
+            `).join('');
+        }
+        
+        function submitWriting() {
+            const content = event.target.previousElementSibling.value;
+            if (content.length < 50) {
+                alert('请输入更多内容（至少50词）！');
+                return;
+            }
+            alert('🎉 恭喜完成写作训练！\n📝 AI批改：内容完整，层次清晰\n⭐ 获得 30 WGO 奖励！');
+            readingProgress.writing++;
+            if (currentUser) updateBalance(30);
+        }
+        
+        // 头像选择
+        let selectedAvatar = '';
+        
+        function showAgentRegister() {
+            document.getElementById('agent-avatar-select').style.display = 'block';
+            document.querySelector('.modal-title').textContent = '✨ 创建你的二次元智能体';
+        }
+        
+        function selectAvatar(el) {
+            document.querySelectorAll('#agent-avatar-select > div').forEach(div => {
+                div.style.border = '2px solid transparent';
+            });
+            el.style.border = '2px solid #4CAF50';
+            selectedAvatar = el.querySelector('div').textContent;
         }
     </script>
 </body>
